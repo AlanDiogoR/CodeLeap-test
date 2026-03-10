@@ -26,7 +26,12 @@ export function DeleteConfirmModal({
   }
 
   return (
-    <Modal open onClose={handleBackdropClick} closable>
+    <Modal
+      open
+      onClose={handleBackdropClick}
+      closable
+      title="Delete post"
+    >
       <motion.div
         animate={
           shake

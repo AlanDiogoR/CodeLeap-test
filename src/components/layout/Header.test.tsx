@@ -29,6 +29,7 @@ describe('Header', () => {
       </Provider>
     )
     await user.click(screen.getByRole('button', { name: /logout/i }))
+    await user.click(screen.getByRole('button', { name: /confirm logout/i }))
     expect(store.getState().auth.username).toBeNull()
   })
 })

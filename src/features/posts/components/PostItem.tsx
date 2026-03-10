@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { formatDistanceToNow } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
+import { enUS } from 'date-fns/locale'
 import type { Post } from '../../../types/post'
 
 interface PostItemProps {
@@ -22,7 +22,7 @@ export function PostItem({
   const [likeCount, setLikeCount] = useState(0)
   const relativeTime = formatDistanceToNow(new Date(post.created_datetime), {
     addSuffix: true,
-    locale: ptBR,
+    locale: enUS,
   })
 
   function handleLike() {

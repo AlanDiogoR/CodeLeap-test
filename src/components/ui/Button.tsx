@@ -43,7 +43,7 @@ export function Button({
 
   return (
     <button
-      type="button"
+      type={props.type ?? 'button'}
       disabled={isDisabled}
       className={`
         inline-flex items-center justify-center gap-2

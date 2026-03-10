@@ -26,7 +26,7 @@ Rede social de posts desenvolvida para o teste técnico da CodeLeap. Projeto pro
 | **Axios** | Cliente HTTP para a API |
 | **Headless UI** | Modais acessíveis |
 | **Framer Motion** | Animações e transições |
-| **date-fns** | Formatação de datas (pt-BR) |
+| **date-fns** | Formatação de datas (en-US) |
 | **react-hot-toast** | Notificações estilizadas |
 | **Vitest** | Testes unitários |
 
@@ -37,6 +37,16 @@ Rede social de posts desenvolvida para o teste técnico da CodeLeap. Projeto pro
 ```bash
 npm install
 ```
+
+Copy `.env.example` to `.env` and configure:
+
+```bash
+cp .env.example .env
+```
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `VITE_API_URL` | API base URL | `https://dev.codeleap.co.uk/careers/` |
 
 ## Execução
 

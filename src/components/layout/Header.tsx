@@ -64,6 +64,7 @@ export function Header() {
                   type="button"
                   onClick={handleLogout}
                   className="flex-1 rounded-lg bg-danger px-2 py-1 text-sm font-medium text-inverse transition-transform hover:scale-105"
+                  aria-label="Confirm logout"
                 >
                   Logout
                 </button>

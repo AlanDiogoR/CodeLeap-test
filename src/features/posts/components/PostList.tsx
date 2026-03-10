@@ -177,7 +177,11 @@ export function PostList({ searchQuery = '' }: PostListProps) {
             >
               <AnimatePresence mode="popLayout">
                 {filteredItems.map((post) => (
-                  <motion.div key={post.id} variants={stagger.item}>
+                  <motion.div
+                    key={post.id}
+                    layout
+                    variants={stagger.item}
+                  >
                     <PostItem
                       post={post}
                       currentUsername={username}

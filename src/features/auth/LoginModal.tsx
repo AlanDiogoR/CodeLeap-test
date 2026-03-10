@@ -1,18 +1,37 @@
-import { useState, type FormEvent } from 'react'
+import { useState, useRef, type FormEvent } from 'react'
 import { useAppDispatch } from '../../store/hooks'
 import { setUsername } from './authSlice'
 import { Button, Input, Modal } from '../../components/ui'
+import {
+  USERNAME_MAX_LENGTH,
+  USERNAME_REGEX,
+  SANITIZE_REGEX,
+} from '../../constants/validation'
 
 export function LoginModal() {
   const [username, setUsernameInput] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const submitLockRef = useRef(false)
   const dispatch = useAppDispatch()
 
-  const isUsernameValid = username.trim().length > 0
+  const trimmed = username.trim()
+  const isUsernameValid =
+    trimmed.length > 0 &&
+    trimmed.length <= USERNAME_MAX_LENGTH &&
+    USERNAME_REGEX.test(trimmed)
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    if (!isUsernameValid) return
-    dispatch(setUsername(username.trim()))
+    setError(null)
+    if (!isUsernameValid || submitLockRef.current) return
+    const sanitized = trimmed.replace(SANITIZE_REGEX, '')
+    if (sanitized.length === 0) {
+      setError('Invalid characters in username')
+      return
+    }
+    submitLockRef.current = true
+    dispatch(setUsername(sanitized))
+    submitLockRef.current = false
   }
 
   return (
@@ -22,9 +41,14 @@ export function LoginModal() {
           label="Please enter your username"
           placeholder="John doe"
           value={username}
-          onChange={(e) => setUsernameInput(e.target.value)}
+          onChange={(e) => {
+            setUsernameInput(e.target.value)
+            setError(null)
+          }}
+          maxLength={USERNAME_MAX_LENGTH}
           autoComplete="username"
           autoFocus
+          error={error ?? undefined}
         />
         <div className="flex justify-end">
           <Button type="submit" disabled={!isUsernameValid}>

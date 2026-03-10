@@ -31,14 +31,14 @@ describe('PostItem', () => {
         onDelete={vi.fn()}
       />
     )
-    expect(screen.getByLabelText(/excluir post/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/editar post/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/delete post/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/edit post/i)).toBeInTheDocument()
   })
 
   it('hides edit and delete when currentUsername differs', () => {
     render(<PostItem post={mockPost} currentUsername="other" />)
-    expect(screen.queryByLabelText(/excluir post/i)).not.toBeInTheDocument()
-    expect(screen.queryByLabelText(/editar post/i)).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(/delete post/i)).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(/edit post/i)).not.toBeInTheDocument()
   })
 
   it('calls onDelete when delete button is clicked', async () => {
@@ -47,7 +47,7 @@ describe('PostItem', () => {
     render(
       <PostItem post={mockPost} currentUsername="john" onDelete={onDelete} />
     )
-    await user.click(screen.getByLabelText(/excluir post/i))
+    await user.click(screen.getByLabelText(/delete post/i))
     expect(onDelete).toHaveBeenCalledWith(mockPost)
   })
 })

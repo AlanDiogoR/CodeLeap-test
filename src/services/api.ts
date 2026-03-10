@@ -1,7 +1,8 @@
 import axios, { AxiosError } from 'axios'
 import type { ApiError } from '../types/api'
 
-const BASE_URL = 'https://dev.codeleap.co.uk/careers/'
+const BASE_URL =
+  import.meta.env.VITE_API_URL ?? 'https://dev.codeleap.co.uk/careers/'
 
 export const api = axios.create({
   baseURL: BASE_URL,

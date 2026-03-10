@@ -1,5 +1,9 @@
 import { useState, type FormEvent, type ChangeEvent, useEffect } from 'react'
 import { Modal, Button, Input, Textarea } from '../../../../components/ui'
+import {
+  POST_TITLE_MAX_LENGTH,
+  POST_CONTENT_MAX_LENGTH,
+} from '../../../../constants/validation'
 import type { Post } from '../../../../types/post'
 
 interface EditPostModalProps {
@@ -27,12 +31,18 @@ export function EditPostModal({
 
   if (!post) return null
 
-  const isFormValid = title.trim().length > 0 && content.trim().length > 0
+  const trimmedTitle = title.trim()
+  const trimmedContent = content.trim()
+  const isFormValid =
+    trimmedTitle.length > 0 &&
+    trimmedTitle.length <= POST_TITLE_MAX_LENGTH &&
+    trimmedContent.length > 0 &&
+    trimmedContent.length <= POST_CONTENT_MAX_LENGTH
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (!isFormValid) return
-    onSave(title.trim(), content.trim())
+    onSave(trimmedTitle, trimmedContent)
   }
 
   return (
@@ -45,6 +55,7 @@ export function EditPostModal({
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
             setTitle(e.target.value)
           }
+          maxLength={POST_TITLE_MAX_LENGTH}
         />
         <Textarea
           label="Content"
@@ -54,6 +65,7 @@ export function EditPostModal({
             setContent(e.target.value)
           }
           rows={4}
+          maxLength={POST_CONTENT_MAX_LENGTH}
         />
         <div className="flex justify-end gap-3">
           <Button type="button" variant="primary" onClick={onCancel}>

@@ -125,11 +125,7 @@ const postSlice = createSlice({
       })
       .addCase(fetchPosts.fulfilled, (state, { payload }) => {
         state.status = 'succeeded'
-        state.items = payload.results.sort(
-          (a, b) =>
-            new Date(b.created_datetime).getTime() -
-            new Date(a.created_datetime).getTime()
-        )
+        state.items = payload.results
         state.pagination.next = payload.next
         state.pagination.hasMore = Boolean(payload.next)
         state.error = null
@@ -173,11 +169,6 @@ const postSlice = createSlice({
         const post = meta.arg
         if (state.optimisticDelete?.id === post.id) {
           state.items.unshift(post)
-          state.items.sort(
-            (a, b) =>
-              new Date(b.created_datetime).getTime() -
-              new Date(a.created_datetime).getTime()
-          )
         }
         state.optimisticDelete = null
         state.error = payload?.message ?? 'Failed to delete post'
@@ -186,19 +177,9 @@ const postSlice = createSlice({
         state.pagination.hasMore = false
       })
       .addCase(fetchNextPage.fulfilled, (state, { payload }) => {
-        const sorted = payload.results.sort(
-          (a, b) =>
-            new Date(b.created_datetime).getTime() -
-            new Date(a.created_datetime).getTime()
-        )
         const ids = new Set(state.items.map((p) => p.id))
-        const newItems = sorted.filter((p) => !ids.has(p.id))
+        const newItems = payload.results.filter((p) => !ids.has(p.id))
         state.items.push(...newItems)
-        state.items.sort(
-          (a, b) =>
-            new Date(b.created_datetime).getTime() -
-            new Date(a.created_datetime).getTime()
-        )
         state.pagination.next = payload.next
         state.pagination.hasMore = Boolean(payload.next)
       })
