@@ -16,13 +16,16 @@
   "dependencies": {
     "@headlessui/react": "^2.2.9",
     "@reduxjs/toolkit": "^2.11.2",
+    "@types/dompurify": "^3.0.5",
     "axios": "^1.13.6",
     "date-fns": "^4.1.0",
+    "dompurify": "^3.3.2",
     "framer-motion": "^12.35.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-hot-toast": "^2.6.0",
-    "react-redux": "^9.2.0"
+    "react-redux": "^9.2.0",
+    "react-router-dom": "^7.13.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

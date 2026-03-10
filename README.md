@@ -1,44 +1,89 @@
 # CodeLeap Network
 
-[![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![Redux Toolkit](https://img.shields.io/badge/Redux_Toolkit-764ABC?style=flat-square&logo=redux&logoColor=white)](https://redux-toolkit.js.org/)
-[![Framer Motion](https://img.shields.io/badge/Framer_Motion-0055FF?style=flat-square&logo=framer&logoColor=white)](https://www.framer.com/motion/)
-[![Vitest](https://img.shields.io/badge/Vitest-6E9F18?style=flat-square&logo=vitest&logoColor=white)](https://vitest.dev/)
+[![CodeLeap Network](./public/favicon.svg)](https://code-leap-test-tau.vercel.app)
 
-Rede social de posts desenvolvida para o teste técnico da CodeLeap. Projeto production-ready com foco em Product Experience (UX/UI), animações, responsividade e micro-interações.
+<p align="center">
+  <img src="./public/img.PNG" alt="CodeLeap Network Screenshot" width="800" />
+</p>
 
-![Screenshot placeholder](https://via.placeholder.com/800x500/dddddd/777777?text=CodeLeap+Network+Screenshot)
+<p align="center">
+  <a href="https://vitejs.dev/"><img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" /></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" /></a>
+  <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React" /></a>
+  <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" /></a>
+  <a href="https://redux-toolkit.js.org/"><img src="https://img.shields.io/badge/Redux_Toolkit-764ABC?style=for-the-badge&logo=redux&logoColor=white" alt="Redux Toolkit" /></a>
+  <a href="https://reactrouter.com/"><img src="https://img.shields.io/badge/React_Router-CA4245?style=for-the-badge&logo=react-router&logoColor=white" alt="React Router" /></a>
+</p>
+
+<p align="center">
+  <a href="https://www.framer.com/motion/"><img src="https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white" alt="Framer Motion" /></a>
+  <a href="https://axios-http.com/"><img src="https://img.shields.io/badge/Axios-5A29E4?style=for-the-badge&logo=axios&logoColor=white" alt="Axios" /></a>
+  <a href="https://headlessui.com/"><img src="https://img.shields.io/badge/Headless_UI-66C2A5?style=for-the-badge" alt="Headless UI" /></a>
+  <a href="https://github.com/cure53/DOMPurify"><img src="https://img.shields.io/badge/DOMPurify-291A1A?style=for-the-badge" alt="DOMPurify" /></a>
+  <a href="https://date-fns.org/"><img src="https://img.shields.io/badge/date--fns-ED2939?style=for-the-badge" alt="date-fns" /></a>
+  <a href="https://react-hot-toast.com/"><img src="https://img.shields.io/badge/react--hot--toast-333333?style=for-the-badge" alt="react-hot-toast" /></a>
+  <a href="https://vitest.dev/"><img src="https://img.shields.io/badge/Vitest-6E9F18?style=for-the-badge&logo=vitest&logoColor=white" alt="Vitest" /></a>
+</p>
+
+<p align="center">
+  <strong>Live Demo:</strong>
+  <a href="https://code-leap-test-tau.vercel.app">code-leap-test-tau.vercel.app</a>
+</p>
 
 ---
 
-## 🛠 Tecnologias
+## About
 
-| Tecnologia | Uso |
-|------------|-----|
-| **Vite** | Build tool e dev server |
-| **TypeScript** | Tipagem estática |
-| **React 19** | Interface e componentes |
-| **Tailwind CSS v4** | Design system e estilização via `@theme` |
-| **Redux Toolkit** | Estado global (auth, posts, paginação) |
-| **Axios** | Cliente HTTP para a API |
-| **Headless UI** | Modais acessíveis |
-| **Framer Motion** | Animações e transições |
-| **date-fns** | Formatação de datas (en-US) |
-| **react-hot-toast** | Notificações estilizadas |
-| **Vitest** | Testes unitários |
+**CodeLeap Network** is a social network for sharing posts, built for CodeLeap's technical assessment. It's a production-ready application with a strong focus on Product Experience (UX/UI), animations, responsiveness, and micro-interactions.
+
+Key highlights:
+- Full CRUD with optimistic UI and error rollback
+- Infinite scroll pagination
+- XSS protection with DOMPurify
+- Fake comments and @mentions support
+- Code splitting and lazy loading
+- Fully responsive, mobile-first design
 
 ---
 
-## 🚀 Instalação
+## Technologies
+
+| Category | Technology | Purpose |
+|----------|------------|---------|
+| **Build** | Vite | Build tool and dev server |
+| **Language** | TypeScript | Static typing |
+| **UI** | React 19 | Components and hooks |
+| **Routing** | React Router v7 | Client-side routing (`/login`, `/`) |
+| **State** | Redux Toolkit | Global state (auth, posts, pagination) |
+| **Styling** | Tailwind CSS v4 | Design system via `@theme` |
+| **HTTP** | Axios | API client |
+| **UI Components** | Headless UI | Accessible modals |
+| **Animations** | Framer Motion | Transitions, stagger, hover effects |
+| **Security** | DOMPurify | XSS protection, input sanitization |
+| **Utilities** | date-fns | Date formatting (en-US) |
+| **Feedback** | react-hot-toast | Styled notifications |
+| **Testing** | Vitest + React Testing Library | Unit and component tests |
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- npm or pnpm
+
+### Installation
 
 ```bash
+git clone https://github.com/your-username/codeleap-test.git
+cd codeleap-test
 npm install
 ```
 
-Copy `.env.example` to `.env` and configure:
+### Environment Variables
+
+Copy the example file and configure:
 
 ```bash
 cp .env.example .env
@@ -46,99 +91,151 @@ cp .env.example .env
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `VITE_API_URL` | API base URL | `https://dev.codeleap.co.uk/careers/` |
+| `VITE_API_URL` | CodeLeap API base URL | `https://dev.codeleap.co.uk/careers/` |
 
-## Execução
+### Development
 
 ```bash
 npm run dev
 ```
 
-Acesse `http://localhost:5173`
+Open [http://localhost:5173](http://localhost:5173)
 
-## Build
+### Build
 
 ```bash
 npm run build
 ```
 
-## Testes
+### Preview Production Build
+
+```bash
+npm run preview
+```
+
+### Tests
 
 ```bash
 npm run test
 ```
 
+### Lint & Format
+
+```bash
+npm run lint
+npm run format
+```
+
 ---
 
-## ✨ Funcionalidades
+## Features
 
 ### Core CRUD
-- **Create** — Criação de posts (título + conteúdo)
-- **Read** — Listagem com infinite scroll e paginação automática
-- **Update** — Edição de posts via modal
-- **Delete** — Remoção com confirmação e optimistic UI
+| Feature | Description |
+|---------|-------------|
+| **Create** | New posts with title and content |
+| **Read** | List with infinite scroll and pagination |
+| **Update** | Edit posts via modal |
+| **Delete** | Confirmation modal, optimistic UI with rollback on error |
 
-### Ordenação & Busca
-- **Sort** — Dropdown para alternar entre "Newest first" e "Oldest first"
-- **Search** — Filtro local por título ou conteúdo
+### Sorting & Search
+| Feature | Description |
+|---------|-------------|
+| **Sort** | Toggle "Newest first" / "Oldest first" (memoized selector) |
+| **Search** | Local filter by title or content (SearchBar above feed) |
 
-### Animações & Transições (Framer Motion)
-- Stagger (fade-in + slide-up) na lista de posts
-- Modal de delete com shake ao clicar fora sem confirmar
-- Hover effects em botões e ícones (`scale`, `brightness`)
-- Animações no like simulado (pop)
+### Social Features
+| Feature | Description |
+|---------|-------------|
+| **Comments** | Fake comments per post, persisted in `localStorage` |
+| **@mentions** | `@username` detection in posts and comments with styled rendering |
+| **Likes** | Heart button with count, persisted in `localStorage` |
 
-### UX & Micro-interações
-- **Scroll to Top** — Botão flutuante após rolar 500px
-- **Toasts** — Notificações customizadas (cor CodeLeap #7695ec) para todas as ações CRUD
-- **Like simulado** — Botão de coração por post, contador local e animação de pop
-- **Logout** — Popover de confirmação antes de sair
+### Security
+| Feature | Description |
+|---------|-------------|
+| **XSS Protection** | DOMPurify sanitization for API content before render |
+| **Input Sanitization** | Title and content sanitized in service layer before POST/PATCH |
 
-### Estados & Feedback
-- **FeedbackState** — SVGs para "No posts found" e "Network Error"
-- **Try Again** — Botão com loading state em caso de erro de rede
-- **Optimistic Delete** — Remoção imediata com rollback em falha da API
+### UX & Polish
+| Feature | Description |
+|---------|-------------|
+| **Animations** | Staggered fade-in, modal transitions, hover/tap effects |
+| **Scroll to Top** | Floating button after scrolling 500px |
+| **Toasts** | CodeLeap blue (#7695ec) notifications for all CRUD actions |
+| **Error Boundary** | Fallback UI on runtime errors |
+| **Feedback States** | Empty and error SVGs with "Try Again" button |
 
-### Responsividade
-- Mobile-first
-- Header sticky com `backdrop-blur`
-- Modais adaptados (padding responsivo)
-- Espaçamentos em grid de 8px (p-2, p-4, p-8)
+### Responsiveness
+- Mobile-first layout
+- Sticky header with `backdrop-blur`
+- Responsive modals and padding
+- 8px spacing grid
 
 ---
 
-## 📁 Estrutura do Projeto
+## Project Structure
 
 ```
-src/
-├── components/          # UI base e layout
-│   ├── layout/          # Header
-│   ├── ui/              # Button, Input, Modal, FeedbackState
-│   └── ScrollToTop.tsx
-├── features/
-│   ├── auth/            # Login modal, authSlice
-│   └── posts/
-│       ├── components/  # CreatePostCard, PostList, PostItem, modals
-│       ├── selectors/   # postSelectors (sort)
-│       └── slice/       # postSlice (CRUD, pagination, sort)
-├── services/            # postService (API)
-├── store/               # Redux config
-├── styles/              # globals.css, design tokens
-├── types/               # TypeScript
-└── utils/               # Helpers (errorHandler)
+codeleap-test/
+├── public/
+│   ├── img.PNG           # README screenshot
+│   ├── favicon.svg
+│   └── _redirects        # Netlify SPA routing
+├── src/
+│   ├── components/       # Shared UI
+│   │   ├── icons/        # Delete, Edit, Heart, Comment
+│   │   ├── layout/       # Header
+│   │   ├── ui/           # Button, Input, Modal, FeedbackState
+│   │   ├── ErrorBoundary.tsx
+│   │   ├── FormattedText.tsx   # @mentions
+│   │   ├── SearchBar.tsx
+│   │   └── ScrollToTop.tsx
+│   ├── features/
+│   │   ├── auth/         # Login, authSlice
+│   │   └── posts/
+│   │       ├── components/  # CreatePostCard, PostList, PostItem, CommentSection, modals
+│   │       ├── hooks/      # usePostActions
+│   │       ├── selectors/  # postSelectors (createSelector)
+│   │       └── slice/      # postSlice
+│   ├── services/        # API, postService
+│   ├── store/           # Redux configureStore
+│   ├── styles/          # globals.css, @theme
+│   ├── types/
+│   ├── utils/           # sanitize, errorHandler
+│   └── constants/       # validation
+├── vercel.json          # SPA rewrites
+├── .env.example
+└── package.json
 ```
 
 ---
 
-## 🎯 Diferenciais
+## Production
 
-- **Design System** — Tokens via Tailwind v4 (`@theme`), paleta e tipografia do [Figma CodeLeap](https://www.figma.com/design/6AizP09Fh9oEAWTLKsr1vQ/)
-- **Arquitetura limpa** — Features isoladas, componentes reutilizáveis, separação de responsabilidades
-- **Acessibilidade** — ARIA-labels em ícones, modais Headless UI
-- **Código em inglês** — Convenções e nomes padronizados
+### Deployed URLs
+
+- **[code-leap-test-tau.vercel.app](https://code-leap-test-tau.vercel.app)** (main)
+- [code-leap-test-git-main-alan-s-projects-0f71c943.vercel.app](https://code-leap-test-git-main-alan-s-projects-0f71c943.vercel.app)
+- [code-leap-test-l0bicw78f-alan-s-projects-0f71c943.vercel.app](https://code-leap-test-l0bicw78f-alan-s-projects-0f71c943.vercel.app)
+
+### Deployment
+
+The project is configured for Vercel and Netlify:
+- `vercel.json` for SPA routing
+- `public/_redirects` for Netlify
 
 ---
 
-## 📄 Licença
+## Design & Architecture
 
-Projeto desenvolvido para fins de avaliação técnica.
+- **Design System** — Tailwind v4 tokens, palette and typography from [CodeLeap Figma](https://www.figma.com/design/6AizP09Fh9oEAWTLKsr1vQ/)
+- **Architecture** — Feature-based structure, reusable components, SRP
+- **Accessibility** — ARIA labels, Headless UI modals, semantic HTML
+- **Code Quality** — TypeScript strict mode, ESLint, Prettier
+
+---
+
+## License
+
+Developed for CodeLeap technical assessment.

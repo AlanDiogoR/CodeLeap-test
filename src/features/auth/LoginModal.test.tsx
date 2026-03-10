@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import { store } from '../../store'
 import { logout } from './authSlice'
@@ -9,7 +10,9 @@ import { LoginModal } from './LoginModal'
 function renderWithStore() {
   return render(
     <Provider store={store}>
-      <LoginModal />
+      <MemoryRouter>
+        <LoginModal />
+      </MemoryRouter>
     </Provider>
   )
 }

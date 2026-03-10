@@ -1,5 +1,16 @@
 import { api } from './api'
+import { sanitizeText } from '../utils/sanitize'
 import type { Post, CreatePostPayload, UpdatePostPayload } from '../types/post'
+
+function sanitizePayload<T extends { title?: string; content?: string }>(
+  payload: T
+): T {
+  return {
+    ...payload,
+    ...(payload.title != null && { title: sanitizeText(payload.title) }),
+    ...(payload.content != null && { content: sanitizeText(payload.content) }),
+  }
+}
 
 export interface ListResponse {
   count: number
@@ -32,12 +43,14 @@ export const postService = {
   },
 
   async create(payload: CreatePostPayload): Promise<Post> {
-    const { data } = await api.post<Post>('', payload)
+    const sanitized = sanitizePayload(payload)
+    const { data } = await api.post<Post>('', sanitized)
     return data
   },
 
   async update(id: number, payload: UpdatePostPayload): Promise<Post> {
-    const { data } = await api.patch<Post>(`${id}/`, payload)
+    const sanitized = sanitizePayload(payload)
+    const { data } = await api.patch<Post>(`${id}/`, sanitized)
     return data
   },
 

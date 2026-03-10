@@ -1,3 +1,5 @@
+import { sanitizeHtml } from '../utils/sanitize'
+
 const MENTION_REGEX = /@(\w+)/g
 
 interface FormattedTextProps {
@@ -6,23 +8,24 @@ interface FormattedTextProps {
 }
 
 export function FormattedText({ text, className = '' }: FormattedTextProps) {
+  const safe = sanitizeHtml(text)
   const parts: (string | { type: 'mention'; username: string })[] = []
   let lastIndex = 0
   let match: RegExpExecArray | null
 
   const re = new RegExp(MENTION_REGEX.source, 'g')
-  while ((match = re.exec(text)) !== null) {
+  while ((match = re.exec(safe)) !== null) {
     if (match.index > lastIndex) {
-      parts.push(text.slice(lastIndex, match.index))
+      parts.push(safe.slice(lastIndex, match.index))
     }
     parts.push({ type: 'mention', username: match[1] })
     lastIndex = match.index + match[0].length
   }
-  if (lastIndex < text.length) {
-    parts.push(text.slice(lastIndex))
+  if (lastIndex < safe.length) {
+    parts.push(safe.slice(lastIndex))
   }
 
-  if (parts.length === 0) return <span className={className}>{text}</span>
+  if (parts.length === 0) return <span className={className}>{safe}</span>
 
   return (
     <span className={className}>

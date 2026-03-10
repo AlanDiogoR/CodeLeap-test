@@ -42,20 +42,6 @@
   --radius-lg: 1rem;
 }
 
-:root {
-  --color-primary: #7695ec;
-  --color-success: #47b960;
-  --color-danger: #ff5151;
-  --color-background: #dddddd;
-  --color-background-card: #ffffff;
-  --color-foreground: #000000;
-  --color-muted: #777777;
-  --color-border: #777777;
-  --color-border-light: #cccccc;
-  --color-placeholder: #cccccc;
-  --font-family-sans: 'Roboto', system-ui, sans-serif;
-}
-
 *,
 *::before,
 *::after {
@@ -63,7 +49,7 @@
 }
 
 html {
-  font-family: var(--font-family-sans);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;

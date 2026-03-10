@@ -10,15 +10,9 @@ import {
 } from '../../../constants/validation'
 import type { ApiError } from '../../../types/api'
 
-interface CreatePostCardProps {
-  searchQuery?: string
-  onSearchChange?: (value: string) => void
-}
+interface CreatePostCardProps {}
 
-export function CreatePostCard({
-  searchQuery = '',
-  onSearchChange,
-}: CreatePostCardProps) {
+export function CreatePostCard(_props: CreatePostCardProps) {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -75,24 +69,14 @@ export function CreatePostCard({
           rows={4}
           maxLength={POST_CONTENT_MAX_LENGTH}
         />
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          {onSearchChange && (
-            <Input
-              placeholder="Search posts..."
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
-              className="sm:max-w-xs"
-            />
-          )}
-          <div className="flex justify-end">
-            <Button
-              type="submit"
-              disabled={!isFormValid}
-              isLoading={isSubmitting}
-            >
-              Create
-            </Button>
-          </div>
+        <div className="flex justify-end">
+          <Button
+            type="submit"
+            disabled={!isFormValid}
+            isLoading={isSubmitting}
+          >
+            Create
+          </Button>
         </div>
       </form>
     </div>

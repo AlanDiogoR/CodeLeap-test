@@ -1,4 +1,5 @@
 import { useState, useRef, type FormEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAppDispatch } from '../../store/hooks'
 import { setUsername } from './authSlice'
 import { Button, Input, Modal } from '../../components/ui'
@@ -13,6 +14,7 @@ export function LoginModal() {
   const [error, setError] = useState<string | null>(null)
   const submitLockRef = useRef(false)
   const dispatch = useAppDispatch()
+  const navigate = useNavigate()
 
   const trimmed = username.trim()
   const isUsernameValid =
@@ -32,6 +34,7 @@ export function LoginModal() {
     submitLockRef.current = true
     dispatch(setUsername(sanitized))
     submitLockRef.current = false
+    navigate('/')
   }
 
   return (

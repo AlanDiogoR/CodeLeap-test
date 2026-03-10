@@ -24,6 +24,7 @@ interface PostsState {
   error: string | null
   pagination: PaginationState
   optimisticDelete: Post | null
+  optimisticDeleteIndex: number
   sortOrder: SortOrder
 }
 
@@ -40,6 +41,7 @@ const initialState: PostsState = {
   error: null,
   pagination: initialPagination,
   optimisticDelete: null,
+  optimisticDeleteIndex: -1,
   sortOrder: 'newest',
 }
 
@@ -157,20 +159,29 @@ const postSlice = createSlice({
       })
       .addCase(deletePost.pending, (state, { meta }) => {
         const post = meta.arg
+        const index = state.items.findIndex((p) => p.id === post.id)
         state.optimisticDelete = post
+        state.optimisticDeleteIndex = index >= 0 ? index : -1
         state.items = state.items.filter((p) => p.id !== post.id)
         state.error = null
       })
       .addCase(deletePost.fulfilled, (state) => {
         state.optimisticDelete = null
+        state.optimisticDeleteIndex = -1
         state.error = null
       })
       .addCase(deletePost.rejected, (state, { payload, meta }) => {
         const post = meta.arg
         if (state.optimisticDelete?.id === post.id) {
-          state.items.unshift(post)
+          const idx = state.optimisticDeleteIndex
+          if (idx >= 0 && idx <= state.items.length) {
+            state.items.splice(idx, 0, post)
+          } else {
+            state.items.push(post)
+          }
         }
         state.optimisticDelete = null
+        state.optimisticDeleteIndex = -1
         state.error = payload?.message ?? 'Failed to delete post'
       })
       .addCase(fetchNextPage.pending, (state) => {
