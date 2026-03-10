@@ -1,7 +1,7 @@
 import { api } from './api'
 import type { Post, CreatePostPayload, UpdatePostPayload } from '../types/post'
 
-interface ListResponse {
+export interface ListResponse {
   count: number
   next: string | null
   previous: string | null
@@ -9,10 +9,26 @@ interface ListResponse {
 }
 
 export const postService = {
-  async getAll(): Promise<Post[]> {
+  async getAll(): Promise<ListResponse> {
     const { data } = await api.get<ListResponse | Post[]>('')
-    if (Array.isArray(data)) return data
-    return data.results ?? []
+    if (Array.isArray(data))
+      return { count: data.length, next: null, previous: null, results: data }
+    return {
+      count: data.count ?? 0,
+      next: data.next ?? null,
+      previous: data.previous ?? null,
+      results: data.results ?? [],
+    }
+  },
+
+  async getPage(url: string): Promise<ListResponse> {
+    const { data } = await api.get<ListResponse>(url)
+    return {
+      count: data.count ?? 0,
+      next: data.next ?? null,
+      previous: data.previous ?? null,
+      results: data.results ?? [],
+    }
   },
 
   async create(payload: CreatePostPayload): Promise<Post> {

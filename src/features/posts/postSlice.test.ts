@@ -4,6 +4,7 @@ import { postReducer, fetchPosts, clearError } from './postSlice'
 vi.mock('../../services/postService', () => ({
   postService: {
     getAll: vi.fn(),
+    getPage: vi.fn(),
     create: vi.fn(),
     update: vi.fn(),
     delete: vi.fn(),
@@ -26,7 +27,12 @@ describe('postSlice', () => {
   })
 
   it('fetchPosts.fulfilled updates items and status', async () => {
-    vi.mocked(postService.getAll).mockResolvedValueOnce([mockPost])
+    vi.mocked(postService.getAll).mockResolvedValueOnce({
+      count: 1,
+      next: null,
+      previous: null,
+      results: [mockPost],
+    })
     const dispatch = vi.fn()
     await fetchPosts()(dispatch, () => ({}), undefined)
     const fulfilled = dispatch.mock.calls.find(

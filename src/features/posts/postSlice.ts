@@ -38,12 +38,32 @@ const initialState: PostsState = {
 }
 
 export const fetchPosts = createAsyncThunk<
-  Post[],
+  { results: Post[]; next: string | null },
   void,
   { rejectValue: ApiError }
 >('posts/fetchPosts', async (_, { rejectWithValue }) => {
   try {
-    return await postService.getAll()
+    const res = await postService.getAll()
+    return {
+      results: res.results,
+      next: res.next,
+    }
+  } catch (error) {
+    return rejectWithValue(error as ApiError)
+  }
+})
+
+export const fetchNextPage = createAsyncThunk<
+  { results: Post[]; next: string | null },
+  string,
+  { rejectValue: ApiError }
+>('posts/fetchNextPage', async (url, { rejectWithValue }) => {
+  try {
+    const res = await postService.getPage(url)
+    return {
+      results: res.results,
+      next: res.next,
+    }
   } catch (error) {
     return rejectWithValue(error as ApiError)
   }
@@ -102,11 +122,13 @@ const postSlice = createSlice({
       })
       .addCase(fetchPosts.fulfilled, (state, { payload }) => {
         state.status = 'succeeded'
-        state.items = payload.sort(
+        state.items = payload.results.sort(
           (a, b) =>
             new Date(b.created_datetime).getTime() -
             new Date(a.created_datetime).getTime()
         )
+        state.pagination.next = payload.next
+        state.pagination.hasMore = Boolean(payload.next)
         state.error = null
       })
       .addCase(fetchPosts.rejected, (state, { payload }) => {
@@ -143,6 +165,30 @@ const postSlice = createSlice({
       })
       .addCase(deletePost.rejected, (state, { payload }) => {
         state.error = payload?.message ?? 'Falha ao excluir post'
+      })
+      .addCase(fetchNextPage.pending, (state) => {
+        state.pagination.hasMore = false
+      })
+      .addCase(fetchNextPage.fulfilled, (state, { payload }) => {
+        const sorted = payload.results.sort(
+          (a, b) =>
+            new Date(b.created_datetime).getTime() -
+            new Date(a.created_datetime).getTime()
+        )
+        const ids = new Set(state.items.map((p) => p.id))
+        const newItems = sorted.filter((p) => !ids.has(p.id))
+        state.items.push(...newItems)
+        state.items.sort(
+          (a, b) =>
+            new Date(b.created_datetime).getTime() -
+            new Date(a.created_datetime).getTime()
+        )
+        state.pagination.next = payload.next
+        state.pagination.hasMore = Boolean(payload.next)
+      })
+      .addCase(fetchNextPage.rejected, (state, { payload }) => {
+        state.pagination.hasMore = Boolean(state.pagination.next)
+        state.error = payload?.message ?? 'Falha ao carregar mais posts'
       })
   },
 })

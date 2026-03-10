@@ -16,7 +16,7 @@ describe('postService', () => {
     vi.clearAllMocks()
   })
 
-  it('getAll returns empty array when API returns empty results', async () => {
+  it('getAll returns ListResponse when API returns empty results', async () => {
     vi.mocked(api.get).mockResolvedValueOnce({
       data: { count: 0, next: null, previous: null, results: [] },
       status: 200,
@@ -24,8 +24,9 @@ describe('postService', () => {
       headers: {},
       config: {} as never,
     })
-    const posts = await postService.getAll()
-    expect(posts).toEqual([])
+    const res = await postService.getAll()
+    expect(res.results).toEqual([])
+    expect(res.next).toBeNull()
   })
 
   it('getAll returns posts from results', async () => {
@@ -45,8 +46,8 @@ describe('postService', () => {
       headers: {},
       config: {} as never,
     })
-    const posts = await postService.getAll()
-    expect(posts).toEqual(mockPosts)
+    const res = await postService.getAll()
+    expect(res.results).toEqual(mockPosts)
   })
 
   it('create sends POST with payload', async () => {
