@@ -16,12 +16,15 @@ interface PaginationState {
   hasMore: boolean
 }
 
+export type SortOrder = 'newest' | 'oldest'
+
 interface PostsState {
   items: Post[]
   status: PostStatus
   error: string | null
   pagination: PaginationState
   optimisticDelete: Post | null
+  sortOrder: SortOrder
 }
 
 const initialPagination = {
@@ -37,6 +40,7 @@ const initialState: PostsState = {
   error: null,
   pagination: initialPagination,
   optimisticDelete: null,
+  sortOrder: 'newest',
 }
 
 export const fetchPosts = createAsyncThunk<
@@ -108,6 +112,9 @@ const postSlice = createSlice({
   reducers: {
     clearError: (state) => {
       state.error = null
+    },
+    setSortOrder: (state, { payload }: { payload: SortOrder }) => {
+      state.sortOrder = payload
     },
   },
   extraReducers: (builder) => {
@@ -202,5 +209,5 @@ const postSlice = createSlice({
   },
 })
 
-export const { clearError } = postSlice.actions
+export const { clearError, setSortOrder } = postSlice.actions
 export const postReducer = postSlice.reducer

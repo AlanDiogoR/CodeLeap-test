@@ -74,6 +74,7 @@ describe('postSlice', () => {
       error: null,
       pagination: { next: null, offset: 0, limit: 10, hasMore: false },
       optimisticDelete: null,
+      sortOrder: 'newest' as const,
     }
     const pendingAction = {
       type: 'posts/deletePost/pending',
@@ -91,6 +92,7 @@ describe('postSlice', () => {
       error: null,
       pagination: { next: null, offset: 0, limit: 10, hasMore: false },
       optimisticDelete: mockPost,
+      sortOrder: 'newest' as const,
     }
     const rejectedAction = {
       type: 'posts/deletePost/rejected',
@@ -115,6 +117,7 @@ describe('postSlice', () => {
           hasMore: false,
         },
         optimisticDelete: null,
+        sortOrder: 'newest',
       },
       clearError()
     )

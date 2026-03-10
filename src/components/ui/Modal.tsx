@@ -41,7 +41,7 @@ export function Modal({
         >
           <div className="fixed inset-0 bg-foreground/50" aria-hidden />
         </TransitionChild>
-        <div className="fixed inset-0 flex items-center justify-center p-4">
+        <div className="fixed inset-0 flex items-center justify-center p-4 sm:p-6">
           <TransitionChild
             enter="ease-out duration-200"
             enterFrom="opacity-0 scale-95"
@@ -50,7 +50,7 @@ export function Modal({
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
           >
-            <DialogPanel className="mx-auto w-full max-w-lg rounded-2xl bg-background-card p-6 shadow-xl">
+            <DialogPanel className="mx-auto w-full max-w-lg rounded-2xl bg-background-card p-4 shadow-xl sm:p-6">
               {title && (
                 <DialogTitle
                   id="modal-title"

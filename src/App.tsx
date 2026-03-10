@@ -18,7 +18,7 @@ function App(): ReactElement {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="mx-auto max-w-3xl p-6">
+      <main className="mx-auto max-w-3xl px-4 py-6 sm:p-6">
         <MainFeed />
       </main>
     </div>

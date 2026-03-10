@@ -1,4 +1,5 @@
-import { useEffect, useRef, useCallback, useState } from 'react'
+import { useEffect, useRef, useCallback, useState, useMemo } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
 import { useAppDispatch, useAppSelector } from '../../../store/hooks'
 import {
@@ -6,8 +7,11 @@ import {
   fetchNextPage,
   deletePost,
   updatePost,
+  setSortOrder,
 } from '../slice/postSlice'
+import { selectSortedPosts } from '../selectors/postSelectors'
 import type { Post } from '../../../types/post'
+import type { SortOrder } from '../slice/postSlice'
 import { PostItem } from './PostItem'
 import { DeleteConfirmModal } from './modals/DeleteConfirmModal'
 import { EditPostModal } from './modals/EditPostModal'
@@ -15,11 +19,33 @@ import { FeedbackState } from '../../../components/ui'
 import { formatErrorForUI } from '../../../utils/errorHandler'
 import type { ApiError } from '../../../types/api'
 
-export function PostList() {
+const stagger = {
+  container: { hidden: {}, visible: { transition: { staggerChildren: 0.05 } } },
+  item: {
+    hidden: { opacity: 0, y: 16 },
+    visible: { opacity: 1, y: 0 },
+  },
+}
+
+interface PostListProps {
+  searchQuery?: string
+}
+
+export function PostList({ searchQuery = '' }: PostListProps) {
   const dispatch = useAppDispatch()
-  const { items, status, pagination, error } = useAppSelector(
+  const { status, pagination, error, sortOrder } = useAppSelector(
     (state) => state.posts
   )
+  const sortedItems = useAppSelector(selectSortedPosts)
+  const filteredItems = useMemo(() => {
+    if (!searchQuery.trim()) return sortedItems
+    const q = searchQuery.toLowerCase()
+    return sortedItems.filter(
+      (p) =>
+        p.title.toLowerCase().includes(q) ||
+        p.content.toLowerCase().includes(q)
+    )
+  }, [sortedItems, searchQuery])
   const username = useAppSelector((state) => state.auth.username)
   const [deleteTarget, setDeleteTarget] = useState<Post | null>(null)
   const [editTarget, setEditTarget] = useState<Post | null>(null)
@@ -32,10 +58,10 @@ export function PostList() {
   }, [dispatch])
 
   useEffect(() => {
-    if (status === 'failed' && error && items.length > 0) {
+    if (status === 'failed' && error && sortedItems.length > 0) {
       toast.error(error)
     }
-  }, [status, error, items.length])
+  }, [status, error, sortedItems.length])
 
   async function handleDelete(post: Post) {
     setDeleteTarget(post)
@@ -94,34 +120,26 @@ export function PostList() {
     return () => observer.disconnect()
   }, [loadMore, pagination.hasMore])
 
-  if (status === 'loading' && items.length === 0) {
+  if (status === 'loading' && sortedItems.length === 0) {
     return <PostListSkeleton />
   }
 
-  if (status === 'failed' && items.length === 0) {
+  if (status === 'failed' && sortedItems.length === 0) {
     return (
       <FeedbackState
         variant="error"
         message={error ?? 'Error loading posts'}
-        action={
-          <button
-            type="button"
-            onClick={async () => {
-              const result = await dispatch(fetchPosts())
-              if (fetchPosts.rejected.match(result)) {
-                toast.error(formatErrorForUI(result.payload as ApiError))
-              }
-            }}
-            className="rounded-lg bg-primary px-4 py-2 font-bold text-inverse hover:opacity-90"
-          >
-            Try again
-          </button>
-        }
+        onRetry={async () => {
+          const result = await dispatch(fetchPosts())
+          if (fetchPosts.rejected.match(result)) {
+            toast.error(formatErrorForUI(result.payload as ApiError))
+          }
+        }}
       />
     )
   }
 
-  if (items.length === 0) {
+  if (sortedItems.length === 0) {
     return (
       <FeedbackState
         variant="empty"
@@ -135,22 +153,50 @@ export function PostList() {
   return (
     <>
       <div className="space-y-6">
-        {items.map((post) => (
-          <PostItem
-            key={post.id}
-            post={post}
-            currentUsername={username}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-xl font-bold text-foreground sm:text-2xl">
+            Feed
+          </h2>
+          <SortDropdown
+            value={sortOrder}
+            onChange={(v) => dispatch(setSortOrder(v as SortOrder))}
           />
-        ))}
-        {pagination.hasMore && (
-          <div ref={sentinelRef} className="flex justify-center py-4">
-            <span
-              className="size-8 animate-spin rounded-full border-2 border-primary border-t-transparent"
-              aria-hidden
-            />
-          </div>
+        </div>
+        {filteredItems.length === 0 ? (
+          <FeedbackState
+            variant="empty"
+            message="No posts match your search."
+          />
+        ) : (
+          <>
+            <motion.div
+              variants={stagger.container}
+              initial="hidden"
+              animate="visible"
+              className="space-y-6"
+            >
+              <AnimatePresence mode="popLayout">
+                {filteredItems.map((post) => (
+                  <motion.div key={post.id} variants={stagger.item}>
+                    <PostItem
+                      post={post}
+                      currentUsername={username}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                    />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </motion.div>
+            {pagination.hasMore && (
+              <div ref={sentinelRef} className="flex justify-center py-4">
+                <span
+                  className="size-8 animate-spin rounded-full border-2 border-primary border-t-transparent"
+                  aria-hidden
+                />
+              </div>
+            )}
+          </>
         )}
       </div>
       <DeleteConfirmModal
@@ -166,6 +212,26 @@ export function PostList() {
         isLoading={isUpdating}
       />
     </>
+  )
+}
+
+function SortDropdown({
+  value,
+  onChange,
+}: {
+  value: SortOrder
+  onChange: (v: SortOrder) => void
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value as SortOrder)}
+      className="rounded-lg border border-border bg-background-card px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+      aria-label="Sort posts"
+    >
+      <option value="newest">Newest first</option>
+      <option value="oldest">Oldest first</option>
+    </select>
   )
 }
 

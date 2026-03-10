@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import { motion } from 'framer-motion'
 import { Modal, Button } from '../../../../components/ui'
 import type { Post } from '../../../../types/post'
 
@@ -14,11 +16,26 @@ export function DeleteConfirmModal({
   onCancel,
   isLoading = false,
 }: DeleteConfirmModalProps) {
+  const [shake, setShake] = useState(false)
+
   if (!post) return null
 
+  function handleBackdropClick() {
+    setShake(true)
+    setTimeout(() => setShake(false), 400)
+  }
+
   return (
-    <Modal open onClose={onCancel} closable>
-      <div className="mt-4 flex flex-col gap-4">
+    <Modal open onClose={handleBackdropClick} closable>
+      <motion.div
+        animate={
+          shake
+            ? { x: [0, -12, 12, -12, 12, 0] }
+            : { x: 0 }
+        }
+        transition={{ duration: 0.4 }}
+        className="mt-4 flex flex-col gap-4"
+      >
         <p className="text-base text-foreground">
           Are you sure you want to delete this item?
         </p>
@@ -30,7 +47,7 @@ export function DeleteConfirmModal({
             Delete
           </Button>
         </div>
-      </div>
+      </motion.div>
     </Modal>
   )
 }

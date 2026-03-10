@@ -6,7 +6,15 @@ import { Button, Input, Textarea } from '../../../components/ui'
 import { formatErrorForUI } from '../../../utils/errorHandler'
 import type { ApiError } from '../../../types/api'
 
-export function CreatePostCard() {
+interface CreatePostCardProps {
+  searchQuery?: string
+  onSearchChange?: (value: string) => void
+}
+
+export function CreatePostCard({
+  searchQuery = '',
+  onSearchChange,
+}: CreatePostCardProps) {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -34,8 +42,8 @@ export function CreatePostCard() {
   }
 
   return (
-    <div className="rounded-2xl border border-border-dark bg-background-card p-6">
-      <h2 className="mb-4 text-2xl font-bold text-foreground">
+    <div className="rounded-2xl border border-border-dark bg-background-card p-4 sm:p-6">
+      <h2 className="mb-4 text-xl font-bold text-foreground sm:text-2xl">
         What&apos;s on your mind?
       </h2>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -52,14 +60,24 @@ export function CreatePostCard() {
           onChange={(e) => setContent(e.target.value)}
           rows={4}
         />
-        <div className="flex justify-end">
-          <Button
-            type="submit"
-            disabled={!isFormValid}
-            isLoading={isSubmitting}
-          >
-            Create
-          </Button>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          {onSearchChange && (
+            <Input
+              placeholder="Search posts..."
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="sm:max-w-xs"
+            />
+          )}
+          <div className="flex justify-end">
+            <Button
+              type="submit"
+              disabled={!isFormValid}
+              isLoading={isSubmitting}
+            >
+              Create
+            </Button>
+          </div>
         </div>
       </form>
     </div>

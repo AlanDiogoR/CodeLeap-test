@@ -48,7 +48,8 @@ export function Button({
       className={`
         inline-flex items-center justify-center gap-2
         min-h-8 px-4 rounded-lg text-base font-bold
-        transition-opacity disabled:pointer-events-none
+        transition-all duration-200 disabled:pointer-events-none
+        hover:scale-105 active:scale-[0.98]
         ${styleClasses} ${className}
       `.trim()}
       {...props}
