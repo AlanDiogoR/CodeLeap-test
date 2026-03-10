@@ -1,7 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit'
+import { postReducer } from '../features/posts'
+import { authReducer } from '../features/auth'
 
 export const store = configureStore({
-  reducer: {},
+  reducer: {
+    posts: postReducer,
+    auth: authReducer,
+  },
 })
 
 export type RootState = ReturnType<typeof store.getState>

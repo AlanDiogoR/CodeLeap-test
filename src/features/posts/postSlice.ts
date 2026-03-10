@@ -1,0 +1,151 @@
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { postService } from '../../services/postService'
+import type {
+  Post,
+  CreatePostPayload,
+  UpdatePostPayload,
+} from '../../types/post'
+import type { ApiError } from '../../types/api'
+
+export type PostStatus = 'idle' | 'loading' | 'succeeded' | 'failed'
+
+interface PaginationState {
+  next: string | null
+  offset: number
+  limit: number
+  hasMore: boolean
+}
+
+interface PostsState {
+  items: Post[]
+  status: PostStatus
+  error: string | null
+  pagination: PaginationState
+}
+
+const initialPagination: PaginationState = {
+  next: null,
+  offset: 0,
+  limit: 10,
+  hasMore: false,
+}
+
+const initialState: PostsState = {
+  items: [],
+  status: 'idle',
+  error: null,
+  pagination: initialPagination,
+}
+
+export const fetchPosts = createAsyncThunk<
+  Post[],
+  void,
+  { rejectValue: ApiError }
+>('posts/fetchPosts', async (_, { rejectWithValue }) => {
+  try {
+    return await postService.getAll()
+  } catch (error) {
+    return rejectWithValue(error as ApiError)
+  }
+})
+
+export const createPost = createAsyncThunk<
+  Post,
+  CreatePostPayload,
+  { rejectValue: ApiError }
+>('posts/createPost', async (payload, { rejectWithValue }) => {
+  try {
+    return await postService.create(payload)
+  } catch (error) {
+    return rejectWithValue(error as ApiError)
+  }
+})
+
+export const updatePost = createAsyncThunk<
+  Post,
+  { id: number; payload: UpdatePostPayload },
+  { rejectValue: ApiError }
+>('posts/updatePost', async ({ id, payload }, { rejectWithValue }) => {
+  try {
+    return await postService.update(id, payload)
+  } catch (error) {
+    return rejectWithValue(error as ApiError)
+  }
+})
+
+export const deletePost = createAsyncThunk<
+  number,
+  number,
+  { rejectValue: ApiError }
+>('posts/deletePost', async (id, { rejectWithValue }) => {
+  try {
+    await postService.delete(id)
+    return id
+  } catch (error) {
+    return rejectWithValue(error as ApiError)
+  }
+})
+
+const postSlice = createSlice({
+  name: 'posts',
+  initialState,
+  reducers: {
+    clearError: (state) => {
+      state.error = null
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchPosts.pending, (state) => {
+        state.status = 'loading'
+        state.error = null
+      })
+      .addCase(fetchPosts.fulfilled, (state, { payload }) => {
+        state.status = 'succeeded'
+        state.items = payload.sort(
+          (a, b) =>
+            new Date(b.created_datetime).getTime() -
+            new Date(a.created_datetime).getTime()
+        )
+        state.error = null
+      })
+      .addCase(fetchPosts.rejected, (state, { payload }) => {
+        state.status = 'failed'
+        state.error = payload?.message ?? 'Falha ao carregar posts'
+      })
+      .addCase(createPost.pending, (state) => {
+        state.error = null
+      })
+      .addCase(createPost.fulfilled, (state, { payload }) => {
+        state.items.unshift(payload)
+        state.error = null
+      })
+      .addCase(createPost.rejected, (state, { payload }) => {
+        state.error = payload?.message ?? 'Falha ao criar post'
+      })
+      .addCase(updatePost.pending, (state) => {
+        state.error = null
+      })
+      .addCase(updatePost.fulfilled, (state, { payload }) => {
+        const index = state.items.findIndex((p) => p.id === payload.id)
+        if (index !== -1) state.items[index] = payload
+        state.error = null
+      })
+      .addCase(updatePost.rejected, (state, { payload }) => {
+        state.error = payload?.message ?? 'Falha ao atualizar post'
+      })
+      .addCase(deletePost.pending, (state) => {
+        state.error = null
+      })
+      .addCase(deletePost.fulfilled, (state, { payload }) => {
+        state.items = state.items.filter((p) => p.id !== payload)
+        state.error = null
+      })
+      .addCase(deletePost.rejected, (state, { payload }) => {
+        state.error = payload?.message ?? 'Falha ao excluir post'
+      })
+  },
+})
+
+export const { clearError } = postSlice.actions
+export const postReducer = postSlice.reducer
