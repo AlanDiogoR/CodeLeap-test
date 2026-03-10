@@ -1,12 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import {
-  postReducer,
-  fetchPosts,
-  createPost,
-  updatePost,
-  deletePost,
-  clearError,
-} from './postSlice'
+import { postReducer, fetchPosts, clearError } from './postSlice'
 
 vi.mock('../../services/postService', () => ({
   postService: {
