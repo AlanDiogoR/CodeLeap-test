@@ -1,8 +1,16 @@
-import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { useState, type FormEvent } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { formatDistanceToNow } from 'date-fns'
 import { enUS } from 'date-fns/locale'
+import { FormattedText } from '../../../components/FormattedText'
 import type { Post } from '../../../types/post'
+
+interface FakeComment {
+  id: string
+  author: string
+  text: string
+  timestamp: number
+}
 
 interface PostItemProps {
   post: Post
@@ -20,6 +28,9 @@ export function PostItem({
   const isOwner = post.username === currentUsername
   const [isLiked, setIsLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(0)
+  const [comments, setComments] = useState<FakeComment[]>([])
+  const [showComments, setShowComments] = useState(false)
+  const [commentInput, setCommentInput] = useState('')
   const relativeTime = formatDistanceToNow(new Date(post.created_datetime), {
     addSuffix: true,
     locale: enUS,
@@ -28,6 +39,26 @@ export function PostItem({
   function handleLike() {
     setIsLiked((prev) => !prev)
     setLikeCount((prev) => (isLiked ? prev - 1 : prev + 1))
+  }
+
+  function handleAddComment(e: FormEvent) {
+    e.preventDefault()
+    const trimmed = commentInput.trim()
+    if (!trimmed) return
+    setComments((prev) => [
+      ...prev,
+      {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        author: currentUsername,
+        text: trimmed,
+        timestamp: Date.now(),
+      },
+    ])
+    setCommentInput('')
+  }
+
+  function handleToggleComments() {
+    setShowComments((prev) => !prev)
   }
 
   return (
@@ -75,10 +106,10 @@ export function PostItem({
           <span>@{post.username}</span>
           <span>{relativeTime}</span>
         </div>
-        <p className="whitespace-pre-wrap text-base text-foreground sm:text-lg">
-          {post.content}
-        </p>
-        <div className="flex items-center gap-2 pt-2">
+        <div className="whitespace-pre-wrap text-base text-foreground sm:text-lg">
+          <FormattedText text={post.content} />
+        </div>
+        <div className="flex flex-wrap items-center gap-4 pt-2">
           <motion.button
             type="button"
             onClick={handleLike}
@@ -101,7 +132,80 @@ export function PostItem({
               <span className="text-sm font-medium">{likeCount}</span>
             )}
           </motion.button>
+          <motion.button
+            type="button"
+            onClick={handleToggleComments}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.9 }}
+            className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-muted transition-colors hover:text-primary"
+            aria-label={showComments ? 'Hide comments' : 'Show comments'}
+            aria-expanded={showComments}
+          >
+            <CommentIcon />
+            <span className="text-sm font-medium">{comments.length}</span>
+          </motion.button>
         </div>
+        <AnimatePresence>
+          {showComments && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <div className="mt-4 space-y-4 border-t border-border pt-4">
+                {comments.length === 0 ? (
+                  <p className="text-sm text-muted">
+                    No comments yet. Be the first to comment!
+                  </p>
+                ) : (
+                  <ul className="space-y-3">
+                    {comments.map((c) => (
+                      <li
+                        key={c.id}
+                        className="rounded-lg bg-background px-3 py-2"
+                      >
+                        <div className="flex items-baseline gap-2 text-sm">
+                          <span className="font-medium text-foreground">
+                            @{c.author}
+                          </span>
+                          <span className="text-xs text-muted">
+                            {formatDistanceToNow(c.timestamp, {
+                              addSuffix: true,
+                              locale: enUS,
+                            })}
+                          </span>
+                        </div>
+                        <div className="mt-1 text-sm text-foreground">
+                          <FormattedText text={c.text} />
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <form onSubmit={handleAddComment} className="flex gap-2">
+                  <input
+                    type="text"
+                    value={commentInput}
+                    onChange={(e) => setCommentInput(e.target.value)}
+                    placeholder="Write a comment..."
+                    className="min-h-8 flex-1 rounded-lg border border-border bg-background-card px-3 py-2 text-sm placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary"
+                    aria-label="Comment input"
+                    maxLength={512}
+                  />
+                  <button
+                    type="submit"
+                    disabled={!commentInput.trim()}
+                    className="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-inverse transition-transform hover:scale-105 disabled:opacity-50"
+                  >
+                    Post
+                  </button>
+                </form>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </motion.article>
   )
@@ -163,6 +267,25 @@ function HeartIcon({ filled }: { filled: boolean }) {
       aria-hidden
     >
       <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+    </svg>
+  )
+}
+
+function CommentIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
     </svg>
   )
 }

@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { postReducer, fetchPosts, clearError } from './postSlice'
+import { selectSortedPosts } from '../selectors/postSelectors'
+import type { RootState } from '../../../store'
 
 vi.mock('../../../services/postService', () => ({
   postService: {
@@ -102,6 +104,76 @@ describe('postSlice', () => {
     const state = postReducer(stateOptimistic, rejectedAction as never)
     expect(state.items).toHaveLength(1)
     expect(state.optimisticDelete).toBeNull()
+  })
+
+  it('selectSortedPosts returns newest first when sortOrder is newest', () => {
+    const post1 = {
+      id: 1,
+      username: 'a',
+      created_datetime: '2025-01-01T10:00:00Z',
+      title: 'First',
+      content: 'A',
+    }
+    const post2 = {
+      id: 2,
+      username: 'b',
+      created_datetime: '2025-01-01T12:00:00Z',
+      title: 'Second',
+      content: 'B',
+    }
+    const post3 = {
+      id: 3,
+      username: 'c',
+      created_datetime: '2025-01-01T11:00:00Z',
+      title: 'Third',
+      content: 'C',
+    }
+    const state: RootState = {
+      posts: {
+        items: [post1, post2, post3],
+        status: 'succeeded',
+        error: null,
+        pagination: { next: null, offset: 0, limit: 10, hasMore: false },
+        optimisticDelete: null,
+        sortOrder: 'newest',
+      },
+      auth: { username: 'user' },
+    }
+    const result = selectSortedPosts(state)
+    expect(result[0].id).toBe(2)
+    expect(result[1].id).toBe(3)
+    expect(result[2].id).toBe(1)
+  })
+
+  it('selectSortedPosts returns oldest first when sortOrder is oldest', () => {
+    const post1 = {
+      id: 1,
+      username: 'a',
+      created_datetime: '2025-01-01T10:00:00Z',
+      title: 'First',
+      content: 'A',
+    }
+    const post2 = {
+      id: 2,
+      username: 'b',
+      created_datetime: '2025-01-01T12:00:00Z',
+      title: 'Second',
+      content: 'B',
+    }
+    const state: RootState = {
+      posts: {
+        items: [post1, post2],
+        status: 'succeeded',
+        error: null,
+        pagination: { next: null, offset: 0, limit: 10, hasMore: false },
+        optimisticDelete: null,
+        sortOrder: 'oldest',
+      },
+      auth: { username: 'user' },
+    }
+    const result = selectSortedPosts(state)
+    expect(result[0].id).toBe(1)
+    expect(result[1].id).toBe(2)
   })
 
   it('clearError resets error', () => {

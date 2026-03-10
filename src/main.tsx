@@ -13,17 +13,17 @@ createRoot(document.getElementById('root')!).render(
       <Provider store={store}>
         <App />
         <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 4000,
-          style: {
-            background: '#7695ec',
-            color: '#fff',
-            borderRadius: '0.5rem',
-            fontWeight: 600,
-          },
-        }}
-      />
+          position="top-right"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: '#7695ec',
+              color: '#fff',
+              borderRadius: '0.5rem',
+              fontWeight: 600,
+            },
+          }}
+        />
       </Provider>
     </ErrorBoundary>
   </StrictMode>

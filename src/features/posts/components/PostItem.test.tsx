@@ -50,4 +50,11 @@ describe('PostItem', () => {
     await user.click(screen.getByLabelText(/delete post/i))
     expect(onDelete).toHaveBeenCalledWith(mockPost)
   })
+
+  it('shows comment button with count', () => {
+    render(<PostItem post={mockPost} currentUsername="other" />)
+    const commentBtn = screen.getByLabelText(/show comments/i)
+    expect(commentBtn).toBeInTheDocument()
+    expect(commentBtn).toHaveTextContent('0')
+  })
 })

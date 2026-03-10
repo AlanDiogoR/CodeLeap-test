@@ -63,7 +63,7 @@ export function PostList({ searchQuery = '' }: PostListProps) {
     }
   }, [status, error, sortedItems.length])
 
-  async function handleDelete(post: Post) {
+  function handleDelete(post: Post) {
     setDeleteTarget(post)
   }
 
