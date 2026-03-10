@@ -1,5 +1,5 @@
-import { Modal, Button } from '../../components/ui'
-import type { Post } from '../../types/post'
+import { Modal, Button } from '../../../../components/ui'
+import type { Post } from '../../../../types/post'
 
 interface DeleteConfirmModalProps {
   post: Post | null

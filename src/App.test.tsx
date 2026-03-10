@@ -34,6 +34,8 @@ describe('App', () => {
     expect(
       screen.getByRole('heading', { name: /codeleap network/i })
     ).toBeInTheDocument()
-    expect(screen.getByText(/feed de posts/i)).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: /what's on your mind/i })
+    ).toBeInTheDocument()
   })
 })

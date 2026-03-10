@@ -1,6 +1,6 @@
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import type { Post } from '../../types/post'
+import type { Post } from '../../../types/post'
 
 interface PostItemProps {
   post: Post
@@ -23,7 +23,7 @@ export function PostItem({
 
   return (
     <article className="overflow-hidden rounded-2xl border border-border-dark bg-background-card">
-      <header className="flex items-center justify-between gap-4 bg-primary px-6 py-5">
+      <header className="flex min-h-[70px] items-center justify-between gap-4 bg-primary px-6 py-5">
         <h3 className="text-2xl font-bold text-inverse">{post.title}</h3>
         {isOwner && (onEdit || onDelete) && (
           <div className="flex gap-3">
@@ -32,7 +32,7 @@ export function PostItem({
                 type="button"
                 onClick={() => onDelete(post)}
                 className="text-inverse hover:opacity-80"
-                aria-label={`Excluir post ${post.title}`}
+                aria-label={`Delete post ${post.title}`}
               >
                 <DeleteIcon />
               </button>
@@ -42,7 +42,7 @@ export function PostItem({
                 type="button"
                 onClick={() => onEdit(post)}
                 className="text-inverse hover:opacity-80"
-                aria-label={`Editar post ${post.title}`}
+                aria-label={`Edit post ${post.title}`}
               >
                 <EditIcon />
               </button>
@@ -50,7 +50,7 @@ export function PostItem({
           </div>
         )}
       </header>
-      <div className="space-y-2 px-6 py-4">
+      <div className="min-h-[120px] space-y-2 px-6 py-4">
         <div className="flex justify-between text-lg text-muted">
           <span>@{post.username}</span>
           <span>{relativeTime}</span>

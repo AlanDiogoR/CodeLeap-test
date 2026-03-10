@@ -1,6 +1,6 @@
-import { useState, type FormEvent, useEffect } from 'react'
-import { Modal, Button, Input, Textarea } from '../../components/ui'
-import type { Post } from '../../types/post'
+import { useState, type FormEvent, type ChangeEvent, useEffect } from 'react'
+import { Modal, Button, Input, Textarea } from '../../../../components/ui'
+import type { Post } from '../../../../types/post'
 
 interface EditPostModalProps {
   post: Post | null
@@ -42,13 +42,17 @@ export function EditPostModal({
           label="Title"
           placeholder="Hello world"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setTitle(e.target.value)
+          }
         />
         <Textarea
           label="Content"
           placeholder="Content here"
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+            setContent(e.target.value)
+          }
           rows={4}
         />
         <div className="flex justify-end gap-3">

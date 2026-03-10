@@ -1,5 +1,5 @@
-import { CreatePostCard } from './CreatePostCard'
-import { PostList } from './PostList'
+import { CreatePostCard } from './components/CreatePostCard'
+import { PostList } from './components/PostList'
 
 export function MainFeed() {
   return (

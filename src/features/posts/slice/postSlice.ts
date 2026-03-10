@@ -1,11 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { postService } from '../../services/postService'
+import { postService } from '../../../services/postService'
 import type {
   Post,
   CreatePostPayload,
   UpdatePostPayload,
-} from '../../types/post'
-import type { ApiError } from '../../types/api'
+} from '../../../types/post'
+import type { ApiError } from '../../../types/api'
 
 export type PostStatus = 'idle' | 'loading' | 'succeeded' | 'failed'
 
@@ -21,9 +21,10 @@ interface PostsState {
   status: PostStatus
   error: string | null
   pagination: PaginationState
+  optimisticDelete: Post | null
 }
 
-const initialPagination: PaginationState = {
+const initialPagination = {
   next: null,
   offset: 0,
   limit: 10,
@@ -35,6 +36,7 @@ const initialState: PostsState = {
   status: 'idle',
   error: null,
   pagination: initialPagination,
+  optimisticDelete: null,
 }
 
 export const fetchPosts = createAsyncThunk<
@@ -44,10 +46,7 @@ export const fetchPosts = createAsyncThunk<
 >('posts/fetchPosts', async (_, { rejectWithValue }) => {
   try {
     const res = await postService.getAll()
-    return {
-      results: res.results,
-      next: res.next,
-    }
+    return { results: res.results, next: res.next }
   } catch (error) {
     return rejectWithValue(error as ApiError)
   }
@@ -60,10 +59,7 @@ export const fetchNextPage = createAsyncThunk<
 >('posts/fetchNextPage', async (url, { rejectWithValue }) => {
   try {
     const res = await postService.getPage(url)
-    return {
-      results: res.results,
-      next: res.next,
-    }
+    return { results: res.results, next: res.next }
   } catch (error) {
     return rejectWithValue(error as ApiError)
   }
@@ -95,12 +91,12 @@ export const updatePost = createAsyncThunk<
 
 export const deletePost = createAsyncThunk<
   number,
-  number,
+  Post,
   { rejectValue: ApiError }
->('posts/deletePost', async (id, { rejectWithValue }) => {
+>('posts/deletePost', async (post, { rejectWithValue }) => {
   try {
-    await postService.delete(id)
-    return id
+    await postService.delete(post.id)
+    return post.id
   } catch (error) {
     return rejectWithValue(error as ApiError)
   }
@@ -133,7 +129,7 @@ const postSlice = createSlice({
       })
       .addCase(fetchPosts.rejected, (state, { payload }) => {
         state.status = 'failed'
-        state.error = payload?.message ?? 'Falha ao carregar posts'
+        state.error = payload?.message ?? 'Failed to load posts'
       })
       .addCase(createPost.pending, (state) => {
         state.error = null
@@ -143,7 +139,7 @@ const postSlice = createSlice({
         state.error = null
       })
       .addCase(createPost.rejected, (state, { payload }) => {
-        state.error = payload?.message ?? 'Falha ao criar post'
+        state.error = payload?.message ?? 'Failed to create post'
       })
       .addCase(updatePost.pending, (state) => {
         state.error = null
@@ -154,17 +150,30 @@ const postSlice = createSlice({
         state.error = null
       })
       .addCase(updatePost.rejected, (state, { payload }) => {
-        state.error = payload?.message ?? 'Falha ao atualizar post'
+        state.error = payload?.message ?? 'Failed to update post'
       })
-      .addCase(deletePost.pending, (state) => {
+      .addCase(deletePost.pending, (state, { meta }) => {
+        const post = meta.arg
+        state.optimisticDelete = post
+        state.items = state.items.filter((p) => p.id !== post.id)
         state.error = null
       })
-      .addCase(deletePost.fulfilled, (state, { payload }) => {
-        state.items = state.items.filter((p) => p.id !== payload)
+      .addCase(deletePost.fulfilled, (state) => {
+        state.optimisticDelete = null
         state.error = null
       })
-      .addCase(deletePost.rejected, (state, { payload }) => {
-        state.error = payload?.message ?? 'Falha ao excluir post'
+      .addCase(deletePost.rejected, (state, { payload, meta }) => {
+        const post = meta.arg
+        if (state.optimisticDelete?.id === post.id) {
+          state.items.unshift(post)
+          state.items.sort(
+            (a, b) =>
+              new Date(b.created_datetime).getTime() -
+              new Date(a.created_datetime).getTime()
+          )
+        }
+        state.optimisticDelete = null
+        state.error = payload?.message ?? 'Failed to delete post'
       })
       .addCase(fetchNextPage.pending, (state) => {
         state.pagination.hasMore = false
@@ -188,7 +197,7 @@ const postSlice = createSlice({
       })
       .addCase(fetchNextPage.rejected, (state, { payload }) => {
         state.pagination.hasMore = Boolean(state.pagination.next)
-        state.error = payload?.message ?? 'Falha ao carregar mais posts'
+        state.error = payload?.message ?? 'Failed to load more posts'
       })
   },
 })

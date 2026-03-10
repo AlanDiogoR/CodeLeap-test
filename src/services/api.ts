@@ -17,25 +17,25 @@ function normalizeError(error: unknown): ApiError {
     const message =
       (axiosError.response?.data as { message?: string })?.message ??
       axiosError.message ??
-      'Erro desconhecido'
+      'Unknown error'
 
     if (axiosError.code === 'ERR_NETWORK')
-      return { code: 'NETWORK_ERROR', message: 'Verifique sua conexão' }
+      return { code: 'NETWORK_ERROR', message: 'Check your connection' }
     if (axiosError.code === 'ECONNABORTED')
-      return { code: 'TIMEOUT', message: 'A requisição expirou' }
+      return { code: 'TIMEOUT', message: 'Request timed out' }
     if (status === 401) return { code: 'UNAUTHORIZED', message, status }
     if (status === 404) return { code: 'NOT_FOUND', message, status }
     if (status && status >= 400 && status < 500)
       return { code: 'VALIDATION_ERROR', message, status }
     if (status && status >= 500)
-      return { code: 'SERVER_ERROR', message: 'Erro no servidor', status }
+      return { code: 'SERVER_ERROR', message: 'Server error', status }
 
     return { code: 'UNKNOWN', message, status }
   }
 
   return {
     code: 'UNKNOWN',
-    message: error instanceof Error ? error.message : 'Erro desconhecido',
+    message: error instanceof Error ? error.message : 'Unknown error',
   }
 }
 

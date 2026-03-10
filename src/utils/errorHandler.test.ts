@@ -4,7 +4,7 @@ import { formatErrorForUI } from './errorHandler'
 describe('formatErrorForUI', () => {
   it('returns network error message', () => {
     expect(formatErrorForUI({ code: 'NETWORK_ERROR', message: '' })).toBe(
-      'Verifique sua conexão e tente novamente.'
+      'Check your connection and try again.'
     )
   })
 

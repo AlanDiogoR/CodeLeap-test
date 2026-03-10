@@ -1,14 +1,25 @@
 import { useEffect, useRef, useCallback, useState } from 'react'
-import { useAppDispatch, useAppSelector } from '../../store/hooks'
-import { fetchPosts, fetchNextPage, deletePost, updatePost } from './postSlice'
-import type { Post } from '../../types/post'
+import toast from 'react-hot-toast'
+import { useAppDispatch, useAppSelector } from '../../../store/hooks'
+import {
+  fetchPosts,
+  fetchNextPage,
+  deletePost,
+  updatePost,
+} from '../slice/postSlice'
+import type { Post } from '../../../types/post'
 import { PostItem } from './PostItem'
-import { DeleteConfirmModal } from './DeleteConfirmModal'
-import { EditPostModal } from './EditPostModal'
+import { DeleteConfirmModal } from './modals/DeleteConfirmModal'
+import { EditPostModal } from './modals/EditPostModal'
+import { FeedbackState } from '../../../components/ui'
+import { formatErrorForUI } from '../../../utils/errorHandler'
+import type { ApiError } from '../../../types/api'
 
 export function PostList() {
   const dispatch = useAppDispatch()
-  const { items, status, pagination } = useAppSelector((state) => state.posts)
+  const { items, status, pagination, error } = useAppSelector(
+    (state) => state.posts
+  )
   const username = useAppSelector((state) => state.auth.username)
   const [deleteTarget, setDeleteTarget] = useState<Post | null>(null)
   const [editTarget, setEditTarget] = useState<Post | null>(null)
@@ -20,6 +31,12 @@ export function PostList() {
     void dispatch(fetchPosts())
   }, [dispatch])
 
+  useEffect(() => {
+    if (status === 'failed' && error && items.length > 0) {
+      toast.error(error)
+    }
+  }, [status, error, items.length])
+
   async function handleDelete(post: Post) {
     setDeleteTarget(post)
   }
@@ -27,9 +44,15 @@ export function PostList() {
   async function confirmDelete() {
     if (!deleteTarget) return
     setIsDeleting(true)
-    await dispatch(deletePost(deleteTarget.id))
+    const result = await dispatch(deletePost(deleteTarget))
     setIsDeleting(false)
     setDeleteTarget(null)
+    if (deletePost.fulfilled.match(result)) {
+      toast.success('Post deleted successfully!')
+    }
+    if (deletePost.rejected.match(result)) {
+      toast.error(formatErrorForUI(result.payload as ApiError))
+    }
   }
 
   function handleEdit(post: Post) {
@@ -39,11 +62,17 @@ export function PostList() {
   async function handleSaveEdit(title: string, content: string) {
     if (!editTarget) return
     setIsUpdating(true)
-    await dispatch(
+    const result = await dispatch(
       updatePost({ id: editTarget.id, payload: { title, content } })
     )
     setIsUpdating(false)
     setEditTarget(null)
+    if (updatePost.fulfilled.match(result)) {
+      toast.success('Post updated successfully!')
+    }
+    if (updatePost.rejected.match(result)) {
+      toast.error(formatErrorForUI(result.payload as ApiError))
+    }
   }
 
   const loadMore = useCallback(() => {
@@ -69,11 +98,35 @@ export function PostList() {
     return <PostListSkeleton />
   }
 
+  if (status === 'failed' && items.length === 0) {
+    return (
+      <FeedbackState
+        variant="error"
+        message={error ?? 'Error loading posts'}
+        action={
+          <button
+            type="button"
+            onClick={async () => {
+              const result = await dispatch(fetchPosts())
+              if (fetchPosts.rejected.match(result)) {
+                toast.error(formatErrorForUI(result.payload as ApiError))
+              }
+            }}
+            className="rounded-lg bg-primary px-4 py-2 font-bold text-inverse hover:opacity-90"
+          >
+            Try again
+          </button>
+        }
+      />
+    )
+  }
+
   if (items.length === 0) {
     return (
-      <div className="rounded-2xl border border-border-dark bg-background-card p-12 text-center">
-        <p className="text-muted">Nenhum post ainda. Crie o primeiro!</p>
-      </div>
+      <FeedbackState
+        variant="empty"
+        message="No posts yet. Create the first one!"
+      />
     )
   }
 
@@ -124,11 +177,19 @@ function PostListSkeleton() {
           key={i}
           className="animate-pulse overflow-hidden rounded-2xl border border-border-dark bg-background-card"
         >
-          <div className="h-16 bg-primary/20" />
-          <div className="space-y-3 p-6">
-            <div className="h-4 w-1/3 rounded bg-muted/30" />
-            <div className="h-4 w-full rounded bg-muted/30" />
-            <div className="h-4 w-2/3 rounded bg-muted/30" />
+          <div className="flex min-h-[70px] items-center px-6 py-5">
+            <div className="h-8 w-1/2 rounded bg-primary/20" />
+          </div>
+          <div className="min-h-[120px] space-y-2 px-6 py-4">
+            <div className="flex justify-between">
+              <div className="h-5 w-24 rounded bg-muted/30" />
+              <div className="h-5 w-28 rounded bg-muted/30" />
+            </div>
+            <div className="space-y-2">
+              <div className="h-5 w-full rounded bg-muted/30" />
+              <div className="h-5 w-3/4 rounded bg-muted/30" />
+              <div className="h-5 w-2/3 rounded bg-muted/30" />
+            </div>
           </div>
         </div>
       ))}

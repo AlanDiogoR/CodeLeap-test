@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { postReducer, fetchPosts, clearError } from './postSlice'
 
-vi.mock('../../services/postService', () => ({
+vi.mock('../../../services/postService', () => ({
   postService: {
     getAll: vi.fn(),
     getPage: vi.fn(),
@@ -11,7 +11,7 @@ vi.mock('../../services/postService', () => ({
   },
 }))
 
-import { postService } from '../../services/postService'
+import { postService } from '../../../services/postService'
 
 const mockPost = {
   id: 1,
@@ -51,7 +51,7 @@ describe('postSlice', () => {
   it('fetchPosts.rejected sets error', async () => {
     vi.mocked(postService.getAll).mockRejectedValueOnce({
       code: 'NETWORK_ERROR',
-      message: 'Verifique sua conexão',
+      message: 'Check your connection',
     })
     const dispatch = vi.fn()
     await fetchPosts()(dispatch, () => ({}), undefined)
@@ -63,8 +63,43 @@ describe('postSlice', () => {
       undefined,
       rejected![0] as ReturnType<typeof fetchPosts.rejected>
     )
-    expect(state.error).toBe('Verifique sua conexão')
+    expect(state.error).toBe('Check your connection')
     expect(state.status).toBe('failed')
+  })
+
+  it('deletePost.pending removes item optimistically', () => {
+    const stateWithPosts = {
+      items: [mockPost],
+      status: 'succeeded' as const,
+      error: null,
+      pagination: { next: null, offset: 0, limit: 10, hasMore: false },
+      optimisticDelete: null,
+    }
+    const pendingAction = {
+      type: 'posts/deletePost/pending',
+      meta: { arg: mockPost },
+    }
+    const state = postReducer(stateWithPosts, pendingAction as never)
+    expect(state.items).toHaveLength(0)
+    expect(state.optimisticDelete).toEqual(mockPost)
+  })
+
+  it('deletePost.rejected restores item on rollback', () => {
+    const stateOptimistic = {
+      items: [],
+      status: 'succeeded' as const,
+      error: null,
+      pagination: { next: null, offset: 0, limit: 10, hasMore: false },
+      optimisticDelete: mockPost,
+    }
+    const rejectedAction = {
+      type: 'posts/deletePost/rejected',
+      payload: { message: 'Error' },
+      meta: { arg: mockPost },
+    }
+    const state = postReducer(stateOptimistic, rejectedAction as never)
+    expect(state.items).toHaveLength(1)
+    expect(state.optimisticDelete).toBeNull()
   })
 
   it('clearError resets error', () => {
@@ -79,6 +114,7 @@ describe('postSlice', () => {
           limit: 10,
           hasMore: false,
         },
+        optimisticDelete: null,
       },
       clearError()
     )

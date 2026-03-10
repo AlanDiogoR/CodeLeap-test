@@ -6,9 +6,9 @@ export {
   updatePost,
   deletePost,
   clearError,
-} from './postSlice'
-export type { PostStatus } from './postSlice'
-export { CreatePostCard } from './CreatePostCard'
-export { PostItem } from './PostItem'
-export { PostList } from './PostList'
+} from './slice/postSlice'
+export type { PostStatus } from './slice/postSlice'
+export { CreatePostCard } from './components/CreatePostCard'
+export { PostItem } from './components/PostItem'
+export { PostList } from './components/PostList'
 export { MainFeed } from './MainFeed'

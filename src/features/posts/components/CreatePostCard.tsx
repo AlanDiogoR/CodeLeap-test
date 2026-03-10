@@ -1,7 +1,10 @@
 import { useState, type FormEvent } from 'react'
-import { useAppDispatch, useAppSelector } from '../../store/hooks'
-import { createPost } from './postSlice'
-import { Button, Input, Textarea } from '../../components/ui'
+import toast from 'react-hot-toast'
+import { useAppDispatch, useAppSelector } from '../../../store/hooks'
+import { createPost } from '../slice/postSlice'
+import { Button, Input, Textarea } from '../../../components/ui'
+import { formatErrorForUI } from '../../../utils/errorHandler'
+import type { ApiError } from '../../../types/api'
 
 export function CreatePostCard() {
   const [title, setTitle] = useState('')
@@ -23,6 +26,10 @@ export function CreatePostCard() {
     if (createPost.fulfilled.match(result)) {
       setTitle('')
       setContent('')
+      toast.success('Post created successfully!')
+    }
+    if (createPost.rejected.match(result)) {
+      toast.error(formatErrorForUI(result.payload as ApiError))
     }
   }
 
