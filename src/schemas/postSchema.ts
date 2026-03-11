@@ -6,8 +6,8 @@ export const postSchema = z.object({
   created_datetime: z.string(),
   title: z.string(),
   content: z.string(),
-  authorId: z.string().optional(),
-  imageUrl: z.string().url().optional(),
+  authorId: z.string().nullable().optional(),
+  imageUrl: z.string().nullable().optional(),
 })
 
 export const listResponseSchema = z.object({

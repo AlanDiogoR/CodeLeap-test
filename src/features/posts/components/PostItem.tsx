@@ -6,7 +6,7 @@ import { FormattedText } from '../../../components/FormattedText'
 import { ImageWithSkeleton } from '../../../components/ImageWithSkeleton'
 import { DeleteIcon, EditIcon, HeartIcon } from '../../../components/icons'
 import { CommentSection } from './CommentSection'
-import { usePostInteractions } from '../hooks/usePostInteractions'
+import { usePost } from '../hooks/usePost'
 import { sanitizeHtml } from '../../../utils/sanitize'
 import type { Post } from '../../../types/post'
 
@@ -40,7 +40,7 @@ export function PostItem({
     setComments,
     addComment,
     handleLike,
-  } = usePostInteractions(post, currentUser.uid)
+  } = usePost(post, currentUser)
 
   const relativeTime = formatDistanceToNow(new Date(post.created_datetime), {
     addSuffix: true,

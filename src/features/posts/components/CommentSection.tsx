@@ -3,11 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { formatDistanceToNow } from 'date-fns'
 import { enUS } from 'date-fns/locale'
 import { FormattedText } from '../../../components/FormattedText'
-import type { FakeComment } from '../hooks/usePostActions'
+import type { Comment } from '../hooks/usePost'
 
 interface CommentSectionProps {
-  comments: FakeComment[]
-  setComments: (fn: (prev: FakeComment[]) => FakeComment[]) => void
+  comments: Comment[]
+  setComments: (fn: (prev: Comment[]) => Comment[]) => void
   addComment?: (text: string) => Promise<void>
   currentUsername: string
   expanded: boolean

@@ -15,6 +15,7 @@ export function LoginModal() {
   const [username, setUsernameInput] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [googleLoading, setGoogleLoading] = useState(false)
+  const [useUsernameFallback, setUseUsernameFallback] = useState(false)
   const submitLockRef = useRef(false)
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
@@ -25,7 +26,7 @@ export function LoginModal() {
     trimmed.length <= USERNAME_MAX_LENGTH &&
     USERNAME_REGEX.test(trimmed)
 
-  const useFirebaseAuth = Boolean(auth)
+  const useFirebaseAuth = Boolean(auth) && !useUsernameFallback
 
   async function handleGoogleSignIn() {
     if (!auth || googleLoading) return
@@ -43,10 +44,22 @@ export function LoginModal() {
         })
       )
       navigate('/')
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Failed to sign in with Google'
-      )
+    } catch (err: unknown) {
+      const code = (err as { code?: string })?.code
+      const isConfigError =
+        code === 'auth/configuration-not-found' ||
+        code === 'auth/invalid-api-key' ||
+        code === 'auth/operation-not-allowed'
+      if (isConfigError) {
+        setError(
+          'Google Sign-in is not configured in Firebase. Use username login below.'
+        )
+        setUseUsernameFallback(true)
+      } else {
+        setError(
+          err instanceof Error ? err.message : 'Failed to sign in with Google'
+        )
+      }
     } finally {
       setGoogleLoading(false)
     }
@@ -62,7 +75,18 @@ export function LoginModal() {
       return
     }
     submitLockRef.current = true
-    dispatch(setLocalUser({ displayName: sanitized }))
+    if (useUsernameFallback && auth) {
+      dispatch(
+        setUser({
+          uid: 'local',
+          displayName: sanitized,
+          photoURL: null,
+          email: null,
+        })
+      )
+    } else {
+      dispatch(setLocalUser({ displayName: sanitized }))
+    }
     submitLockRef.current = false
     navigate('/')
   }
@@ -80,7 +104,7 @@ export function LoginModal() {
               {googleLoading ? 'Signing in...' : 'Sign in with Google'}
             </Button>
             {error && (
-              <p className="text-sm text-red-600" role="alert">
+              <p className="text-sm text-danger" role="alert">
                 {error}
               </p>
             )}

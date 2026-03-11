@@ -7,17 +7,35 @@ import {
   addComment as firebaseAddComment,
   type FirestoreComment,
 } from '../../../services/firebasePostInteractions'
-import type { FakeComment } from './usePostActions'
 
 const DATA_SOURCE = import.meta.env.VITE_DATA_SOURCE ?? 'rest'
-const useFirebaseInteractions = DATA_SOURCE === 'firebase'
-
 const STORAGE_KEY = 'codeleap_post_data'
+
+export interface Comment {
+  id: string
+  author: string
+  text: string
+  timestamp: number
+}
+
+export interface CurrentUser {
+  uid: string
+  displayName: string
+}
+
+export interface UsePostResult {
+  isLiked: boolean
+  likeCount: number
+  comments: Comment[]
+  setComments: (fn: (prev: Comment[]) => Comment[]) => void
+  addComment?: (text: string) => Promise<void>
+  handleLike: () => void
+}
 
 function loadFromStorage(postId: number | string): {
   likes: number
   liked: boolean
-  comments: FakeComment[]
+  comments: Comment[]
 } {
   if (typeof window === 'undefined') {
     return { likes: 0, liked: false, comments: [] }
@@ -27,7 +45,7 @@ function loadFromStorage(postId: number | string): {
     if (!raw) return { likes: 0, liked: false, comments: [] }
     const data = JSON.parse(raw) as Record<
       string,
-      { likes: number; liked: boolean; comments: FakeComment[] }
+      { likes: number; liked: boolean; comments: Comment[] }
     >
     const key = String(postId)
     return data[key] ?? { likes: 0, liked: false, comments: [] }
@@ -38,7 +56,7 @@ function loadFromStorage(postId: number | string): {
 
 function saveToStorage(
   postId: number | string,
-  data: { likes: number; liked: boolean; comments: FakeComment[] }
+  data: { likes: number; liked: boolean; comments: Comment[] }
 ): void {
   if (typeof window === 'undefined') return
   try {
@@ -51,20 +69,14 @@ function saveToStorage(
   }
 }
 
-export interface PostInteractionsResult {
-  isLiked: boolean
-  likeCount: number
-  comments: FakeComment[]
-  setComments: (fn: (prev: FakeComment[]) => FakeComment[]) => void
-  addComment?: (text: string) => Promise<void>
-  handleLike: () => void
-}
-
-function useFirestoreInteractions(
+function useFirestoreMode(
   post: Post,
-  currentUserId: string | null
-): PostInteractionsResult {
+  currentUser: CurrentUser
+): UsePostResult {
   const postId = typeof post.id === 'string' ? post.id : ''
+  const currentUserId =
+    currentUser.uid !== 'local' ? currentUser.uid : null
+
   const [likeCount, setLikeCount] = useState(0)
   const [isLiked, setIsLiked] = useState(false)
   const [comments, setCommentsState] = useState<FirestoreComment[]>([])
@@ -85,7 +97,7 @@ function useFirestoreInteractions(
   }, [postId])
 
   const handleLike = useCallback(async () => {
-    if (!currentUserId || currentUserId === 'local') return
+    if (!currentUserId) return
     try {
       const liked = await firebaseToggleLike(postId, currentUserId)
       setIsLiked(liked)
@@ -97,15 +109,16 @@ function useFirestoreInteractions(
 
   const addComment = useCallback(
     async (text: string) => {
-      const author = post.username
-      const authorId =
-        currentUserId && currentUserId !== 'local' ? currentUserId : undefined
-      await firebaseAddComment(postId, { author, authorId, text })
+      await firebaseAddComment(postId, {
+        author: currentUser.displayName,
+        authorId: currentUserId ?? undefined,
+        text,
+      })
     },
-    [postId, post.username, currentUserId]
+    [postId, currentUser.displayName, currentUserId]
   )
 
-  const commentsAsFake: FakeComment[] = comments.map((c) => ({
+  const commentsAsComment: Comment[] = comments.map((c) => ({
     id: c.id,
     author: c.author,
     text: c.text,
@@ -115,18 +128,18 @@ function useFirestoreInteractions(
   return {
     isLiked,
     likeCount,
-    comments: commentsAsFake,
+    comments: commentsAsComment,
     setComments: () => {},
     addComment,
     handleLike,
   }
 }
 
-function useLocalInteractions(post: Post): PostInteractionsResult {
+function useLocalMode(post: Post): UsePostResult {
   const stored = loadFromStorage(post.id)
   const [isLiked, setIsLiked] = useState(stored.liked)
   const [likeCount, setLikeCount] = useState(stored.likes)
-  const [comments, setComments] = useState<FakeComment[]>(stored.comments)
+  const [comments, setComments] = useState<Comment[]>(stored.comments)
 
   useEffect(() => {
     saveToStorage(post.id, { likes: likeCount, liked: isLiked, comments })
@@ -149,15 +162,14 @@ function useLocalInteractions(post: Post): PostInteractionsResult {
   }
 }
 
-export function usePostInteractions(
-  post: Post,
-  currentUserId: string | null
-): PostInteractionsResult {
+export function usePost(post: Post, currentUser: CurrentUser): UsePostResult {
   const useFirestore =
-    useFirebaseInteractions && typeof post.id === 'string' && post.id !== ''
+    DATA_SOURCE === 'firebase' &&
+    typeof post.id === 'string' &&
+    post.id !== ''
 
   if (useFirestore) {
-    return useFirestoreInteractions(post, currentUserId)
+    return useFirestoreMode(post, currentUser)
   }
-  return useLocalInteractions(post)
+  return useLocalMode(post)
 }

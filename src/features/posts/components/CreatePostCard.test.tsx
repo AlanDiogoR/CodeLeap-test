@@ -6,10 +6,7 @@ import { store } from '../../../store'
 import { setLocalUser } from '../../auth/authSlice'
 import { CreatePostCard } from './CreatePostCard'
 
-vi.mock('../../../services/firebase', () => ({
-  auth: null,
-  storage: null,
-}))
+vi.mock('../../../services/firebase', () => ({ auth: null }))
 
 function renderWithStore() {
   return render(

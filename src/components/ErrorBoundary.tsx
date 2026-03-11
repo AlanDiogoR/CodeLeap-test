@@ -23,10 +23,8 @@ export class ErrorBoundary extends Component<
     return { hasError: true, error }
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    if (import.meta.env.DEV) {
-      console.error('ErrorBoundary caught:', error, errorInfo)
-    }
+  componentDidCatch(_error: Error, _errorInfo: ErrorInfo): void {
+    // Error boundary - fallback UI shown; optionally log to external service
   }
 
   render(): ReactNode {

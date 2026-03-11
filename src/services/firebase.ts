@@ -1,7 +1,6 @@
 import { initializeApp } from 'firebase/app'
 import { getAuth, connectAuthEmulator } from 'firebase/auth'
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore'
-import { getStorage, connectStorageEmulator } from 'firebase/storage'
 
 const config = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -23,7 +22,6 @@ const hasValidConfig = Boolean(
 export const app = hasValidConfig ? initializeApp(config) : null
 export const auth = app ? getAuth(app) : null
 export const db = app ? getFirestore(app) : null
-export const storage = app ? getStorage(app) : null
 
 if (
   import.meta.env.DEV &&
@@ -32,5 +30,4 @@ if (
 ) {
   if (auth) connectAuthEmulator(auth, 'http://localhost:9099')
   if (db) connectFirestoreEmulator(db, 'localhost', 8080)
-  if (storage) connectStorageEmulator(storage, 'localhost', 9199)
 }

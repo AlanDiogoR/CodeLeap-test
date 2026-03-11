@@ -11,6 +11,7 @@ import {
   deleteField,
   doc,
   startAfter,
+  serverTimestamp,
   type DocumentData,
 } from 'firebase/firestore'
 import { db } from '../services/firebase'
@@ -37,7 +38,12 @@ function firestorePostToPost(docId: string, data: DocumentData): Post {
   if (!parsed.success) {
     throw new Error('Invalid Firestore post data')
   }
-  return parsed.data
+  const p = parsed.data
+  return {
+    ...p,
+    authorId: p.authorId ?? undefined,
+    imageUrl: p.imageUrl ?? undefined,
+  }
 }
 
 export class FirebasePostRepository implements IPostRepository {
@@ -100,14 +106,18 @@ export class FirebasePostRepository implements IPostRepository {
       title: payload.title,
       content: payload.content,
       imageUrl: payload.imageUrl ?? null,
-      createdAt: new Date(),
+      createdAt: serverTimestamp(),
       likesCount: 0,
       commentsCount: 0,
     })
+    const snap = await getDoc(docRef)
+    const data = snap.data() ?? {}
+    const createdAt =
+      data.createdAt?.toDate?.()?.toISOString?.() ?? new Date().toISOString()
     const post: Post = {
       id: docRef.id,
       username: payload.username,
-      created_datetime: new Date().toISOString(),
+      created_datetime: createdAt,
       title: payload.title,
       content: payload.content,
       authorId: payload.authorId,
@@ -129,7 +139,7 @@ export class FirebasePostRepository implements IPostRepository {
       ...(payload.imageUrl === ''
         ? { imageUrl: deleteField() }
         : payload.imageUrl != null && { imageUrl: payload.imageUrl }),
-      updatedAt: new Date(),
+      updatedAt: serverTimestamp(),
     })
     const allQuery = await getDocs(
       query(

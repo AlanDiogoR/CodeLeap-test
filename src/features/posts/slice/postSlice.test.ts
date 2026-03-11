@@ -3,17 +3,17 @@ import { postReducer, fetchPosts, clearError } from './postSlice'
 import { selectSortedPosts } from '../selectors/postSelectors'
 import type { RootState } from '../../../store'
 
-vi.mock('../../../services/postService', () => ({
-  postService: {
-    getAll: vi.fn(),
-    getPage: vi.fn(),
-    create: vi.fn(),
-    update: vi.fn(),
-    delete: vi.fn(),
-  },
-}))
+const mockRepository = {
+  getAll: vi.fn(),
+  getNextPage: vi.fn(),
+  create: vi.fn(),
+  update: vi.fn(),
+  delete: vi.fn(),
+}
 
-import { postService } from '../../../services/postService'
+vi.mock('../../../repositories', () => ({
+  getPostRepository: () => mockRepository,
+}))
 
 const mockPost = {
   id: 1,
@@ -29,11 +29,9 @@ describe('postSlice', () => {
   })
 
   it('fetchPosts.fulfilled updates items and status', async () => {
-    vi.mocked(postService.getAll).mockResolvedValueOnce({
-      count: 1,
-      next: null,
-      previous: null,
+    mockRepository.getAll.mockResolvedValueOnce({
       results: [mockPost],
+      next: null,
     })
     const dispatch = vi.fn()
     await fetchPosts()(dispatch, () => ({}), undefined)
@@ -51,7 +49,7 @@ describe('postSlice', () => {
   })
 
   it('fetchPosts.rejected sets error', async () => {
-    vi.mocked(postService.getAll).mockRejectedValueOnce({
+    mockRepository.getAll.mockRejectedValueOnce({
       code: 'NETWORK_ERROR',
       message: 'Check your connection',
     })
@@ -86,6 +84,22 @@ describe('postSlice', () => {
     const state = postReducer(stateWithPosts, pendingAction as never)
     expect(state.items).toHaveLength(0)
     expect(state.optimisticDelete).toEqual(mockPost)
+  })
+
+  it('deletePost.rejected restores item on permission error', async () => {
+    mockRepository.delete.mockRejectedValueOnce({
+      code: 'permission-denied',
+      message: 'You can only delete your own posts',
+    })
+    const dispatch = vi.fn()
+    await import('./postSlice').then(({ deletePost }) =>
+      deletePost(mockPost)(dispatch, () => ({}), undefined)
+    )
+    const rejected = dispatch.mock.calls.find(
+      (c) => c[0]?.type === 'posts/deletePost/rejected'
+    )
+    expect(rejected).toBeDefined()
+    expect(mockRepository.delete).toHaveBeenCalledWith(mockPost.id)
   })
 
   it('deletePost.rejected restores item on rollback', () => {
