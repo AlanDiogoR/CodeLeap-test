@@ -11,8 +11,8 @@ export interface AuthUser {
 const LOCAL_USER_KEY = 'codeleap_local_user'
 
 function loadLocalUser(): AuthUser | null {
-  if (auth) return null
   try {
+    if (typeof localStorage === 'undefined') return null
     const raw = localStorage.getItem(LOCAL_USER_KEY)
     if (!raw) return null
     const parsed = JSON.parse(raw) as unknown
@@ -50,7 +50,7 @@ interface AuthState {
 }
 
 const initialState: AuthState = {
-  user: auth ? null : loadLocalUser(),
+  user: loadLocalUser(),
   initialized: !auth,
 }
 
@@ -59,9 +59,21 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     setUser: (state, { payload }: { payload: AuthUser | null }) => {
+      if (payload === null && auth) {
+        const local = loadLocalUser()
+        if (local?.uid === 'local') {
+          state.user = local
+          return
+        }
+      }
       state.user = payload
-      if (!auth && payload) saveLocalUser(payload)
-      else if (!auth) saveLocalUser(null)
+      if (payload?.uid === 'local') {
+        saveLocalUser(payload)
+      } else if (payload) {
+        saveLocalUser(null)
+      } else if (!auth) {
+        saveLocalUser(null)
+      }
     },
     setLocalUser: (state, { payload }: { payload: { displayName: string } }) => {
       if (auth) return
@@ -76,7 +88,7 @@ const authSlice = createSlice({
     },
     logout: (state) => {
       state.user = null
-      if (!auth) saveLocalUser(null)
+      saveLocalUser(null)
     },
     setAuthInitialized: (state, { payload }: { payload: boolean }) => {
       state.initialized = payload

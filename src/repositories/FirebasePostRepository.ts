@@ -15,9 +15,20 @@ import {
   type DocumentData,
 } from 'firebase/firestore'
 import { db } from '../services/firebase'
+import { sanitizeText } from '../utils/sanitize'
 import type { IPostRepository, PaginatedResult } from './IPostRepository'
 import type { Post, CreatePostPayload, UpdatePostPayload } from '../types/post'
 import { postSchema } from '../schemas/postSchema'
+
+function sanitizePayload<T extends { title?: string; content?: string }>(
+  payload: T
+): T {
+  return {
+    ...payload,
+    ...(payload.title != null && { title: sanitizeText(payload.title) }),
+    ...(payload.content != null && { content: sanitizeText(payload.content) }),
+  }
+}
 
 const POSTS_COLLECTION = 'posts'
 const PAGE_SIZE = 10
@@ -100,12 +111,13 @@ export class FirebasePostRepository implements IPostRepository {
   async create(payload: CreatePostPayload): Promise<Post> {
     if (!db) throw new Error('Firestore not configured')
 
+    const sanitized = sanitizePayload(payload)
     const docRef = await addDoc(collection(db, POSTS_COLLECTION), {
-      authorId: payload.authorId ?? null,
-      authorDisplayName: payload.username,
-      title: payload.title,
-      content: payload.content,
-      imageUrl: payload.imageUrl ?? null,
+      authorId: sanitized.authorId ?? null,
+      authorDisplayName: sanitized.username,
+      title: sanitized.title,
+      content: sanitized.content,
+      imageUrl: sanitized.imageUrl ?? null,
       createdAt: serverTimestamp(),
       likesCount: 0,
       commentsCount: 0,
@@ -116,12 +128,12 @@ export class FirebasePostRepository implements IPostRepository {
       data.createdAt?.toDate?.()?.toISOString?.() ?? new Date().toISOString()
     const post: Post = {
       id: docRef.id,
-      username: payload.username,
+      username: sanitized.username,
       created_datetime: createdAt,
-      title: payload.title,
-      content: payload.content,
-      authorId: payload.authorId,
-      imageUrl: payload.imageUrl,
+      title: sanitized.title,
+      content: sanitized.content,
+      authorId: sanitized.authorId,
+      imageUrl: sanitized.imageUrl,
     }
     return post
   }
@@ -132,16 +144,17 @@ export class FirebasePostRepository implements IPostRepository {
   ): Promise<Post> {
     if (!db) throw new Error('Firestore not configured')
 
+    const sanitized = sanitizePayload(payload)
     const docRef = doc(db, POSTS_COLLECTION, String(id))
     const updatePayload: Record<string, unknown> = {
-      title: payload.title,
-      content: payload.content,
+      title: sanitized.title,
+      content: sanitized.content,
       updatedAt: serverTimestamp(),
     }
-    if (payload.imageUrl === '') {
+    if (sanitized.imageUrl === '') {
       updatePayload.imageUrl = deleteField()
-    } else if (payload.imageUrl != null) {
-      updatePayload.imageUrl = payload.imageUrl
+    } else if (sanitized.imageUrl != null) {
+      updatePayload.imageUrl = sanitized.imageUrl
     }
     await updateDoc(docRef, updatePayload)
 

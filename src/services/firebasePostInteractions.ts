@@ -13,6 +13,7 @@ import {
   type Unsubscribe,
 } from 'firebase/firestore'
 import { db } from './firebase'
+import { sanitizeText } from '../utils/sanitize'
 
 const POSTS_COLLECTION = 'posts'
 const LIKES_SUBCOLLECTION = 'likes'
@@ -85,9 +86,9 @@ export async function addComment(
   if (!db) throw new Error('Firestore not configured')
   const ref = collection(db, POSTS_COLLECTION, postId, COMMENTS_SUBCOLLECTION)
   const docRef = await addDoc(ref, {
-    author: payload.author,
+    author: sanitizeText(payload.author),
     authorId: payload.authorId ?? null,
-    text: payload.text,
+    text: sanitizeText(payload.text),
     createdAt: serverTimestamp(),
   })
   const snap = await getDoc(docRef)
