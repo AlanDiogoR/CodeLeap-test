@@ -217,6 +217,7 @@ export function PostList({ searchQuery = '' }: PostListProps) {
         isLoading={isDeleting}
       />
       <EditPostModal
+        key={editTarget?.id == null ? 'edit-post-empty' : `edit-post-${String(editTarget.id)}`}
         post={editTarget}
         onSave={handleSaveEdit}
         onCancel={() => setEditTarget(null)}

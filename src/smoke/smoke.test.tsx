@@ -3,7 +3,7 @@
  * Covers: Auth, CRUD (owner), Likes, Comments, Infinite Scroll
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Provider } from 'react-redux'
 import { store } from '../store'
@@ -254,7 +254,11 @@ describe('Smoke: Comments', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/my first comment/i)).toBeInTheDocument()
-      expect(screen.getByText(/@john/)).toBeInTheDocument()
+      const commentItem = screen.getByText(/my first comment/i).closest('li')
+      expect(commentItem).not.toBeNull()
+      expect(
+        within(commentItem as HTMLElement).getByText(/^@john$/i)
+      ).toBeInTheDocument()
     })
   })
 })
@@ -284,7 +288,9 @@ describe('Smoke: Infinite Scroll', () => {
     expect(store.getState().posts.pagination.next).toBe('cursor-page-2')
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: /post 1/i })).toBeInTheDocument()
+      expect(
+        screen.getByRole('heading', { name: /^post 1$/i })
+      ).toBeInTheDocument()
     })
   })
 

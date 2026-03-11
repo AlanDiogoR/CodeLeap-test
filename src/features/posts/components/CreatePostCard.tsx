@@ -11,9 +11,7 @@ import {
 } from '../../../constants/validation'
 import type { ApiError } from '../../../types/api'
 
-interface CreatePostCardProps {}
-
-export function CreatePostCard(_props: CreatePostCardProps) {
+export function CreatePostCard() {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [imageUrl, setImageUrl] = useState('')

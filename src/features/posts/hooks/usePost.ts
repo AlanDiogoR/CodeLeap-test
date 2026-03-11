@@ -31,8 +31,8 @@ export function usePost(post: Post, currentUser: CurrentUser): UsePostResult {
     typeof post.id === 'string' &&
     post.id !== ''
 
-  if (useFirestore) {
-    return usePostFirebase(post, currentUser)
-  }
-  return usePostLocal(post)
+  const firebaseResult = usePostFirebase(post, currentUser)
+  const localResult = usePostLocal(post)
+
+  return useFirestore ? firebaseResult : localResult
 }

@@ -2,7 +2,6 @@ import {
   useState,
   type FormEvent,
   type ChangeEvent,
-  useEffect,
 } from 'react'
 import { Modal, Button, Input, Textarea } from '../../../../components/ui'
 import {
@@ -25,19 +24,10 @@ export function EditPostModal({
   onCancel,
   isLoading = false,
 }: EditPostModalProps) {
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
-  const [imageUrl, setImageUrl] = useState('')
+  const [title, setTitle] = useState(() => post?.title ?? '')
+  const [content, setContent] = useState(() => post?.content ?? '')
+  const [imageUrl, setImageUrl] = useState(() => post?.imageUrl ?? '')
   const [imageUrlError, setImageUrlError] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (post) {
-      setTitle(post.title)
-      setContent(post.content)
-      setImageUrl(post.imageUrl ?? '')
-      setImageUrlError(null)
-    }
-  }, [post])
 
   function handleImageUrlChange(value: string) {
     setImageUrl(value)

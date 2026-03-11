@@ -9,16 +9,15 @@ describe('FormattedText', () => {
   })
 
   it('renders text with @mention as styled span', () => {
-    render(<FormattedText text="Hi @john!" />)
+    const { container } = render(<FormattedText text="Hi @john!" />)
     expect(screen.getByText('@john')).toBeInTheDocument()
-    expect(screen.getByText('Hi ')).toBeInTheDocument()
-    expect(screen.getByText('!')).toBeInTheDocument()
+    expect(container.textContent).toContain('Hi @john!')
   })
 
   it('renders multiple mentions', () => {
-    render(<FormattedText text="@alice and @bob" />)
+    const { container } = render(<FormattedText text="@alice and @bob" />)
     expect(screen.getByText('@alice')).toBeInTheDocument()
-    expect(screen.getByText(' and ')).toBeInTheDocument()
     expect(screen.getByText('@bob')).toBeInTheDocument()
+    expect(container.textContent).toContain('@alice and @bob')
   })
 })
