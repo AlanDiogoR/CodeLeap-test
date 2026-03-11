@@ -1,9 +1,15 @@
 import { useState, useRef, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
+import {
+  signInWithPopup,
+  signInAnonymously,
+  GoogleAuthProvider,
+} from 'firebase/auth'
 import { useAppDispatch } from '../../store/hooks'
 import { setUser, setLocalUser } from './authSlice'
 import { auth } from '../../services/firebase'
+
+const DATA_SOURCE = import.meta.env.VITE_DATA_SOURCE ?? 'rest'
 import { Button, Input, Modal } from '../../components/ui'
 import {
   USERNAME_MAX_LENGTH,
@@ -65,7 +71,7 @@ export function LoginModal() {
     }
   }
 
-  function handleUsernameSubmit(e: FormEvent) {
+  async function handleUsernameSubmit(e: FormEvent) {
     e.preventDefault()
     setError(null)
     if (!isUsernameValid || submitLockRef.current) return
@@ -75,7 +81,26 @@ export function LoginModal() {
       return
     }
     submitLockRef.current = true
-    if (useUsernameFallback && auth) {
+    if (DATA_SOURCE === 'firebase' && useUsernameFallback && auth) {
+      try {
+        const credential = await signInAnonymously(auth)
+        dispatch(
+          setUser({
+            uid: credential.user.uid,
+            displayName: sanitized,
+            photoURL: null,
+            email: null,
+          })
+        )
+        navigate('/')
+      } catch {
+        setError('Unable to sign in. Enable Anonymous auth in Firebase Console.')
+      } finally {
+        submitLockRef.current = false
+      }
+      return
+    }
+    if (auth) {
       dispatch(
         setUser({
           uid: 'local',
@@ -87,8 +112,8 @@ export function LoginModal() {
     } else {
       dispatch(setLocalUser({ displayName: sanitized }))
     }
-    submitLockRef.current = false
     navigate('/')
+    submitLockRef.current = false
   }
 
   return (

@@ -254,10 +254,10 @@ function PostListSkeleton() {
           key={i}
           className="animate-pulse overflow-hidden rounded-2xl border border-border-dark bg-background-card"
         >
-          <div className="flex min-h-[70px] items-center px-6 py-5">
+          <div className="flex min-h-[70px] items-center px-4 py-5 sm:px-6">
             <div className="h-8 w-1/2 rounded bg-primary/20" />
           </div>
-          <div className="min-h-[120px] space-y-2 px-6 py-4">
+          <div className="min-h-[120px] space-y-2 px-4 py-4 sm:px-6">
             <div className="flex justify-between">
               <div className="h-5 w-24 rounded bg-muted/30" />
               <div className="h-5 w-28 rounded bg-muted/30" />

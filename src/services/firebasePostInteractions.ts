@@ -9,6 +9,7 @@ import {
   onSnapshot,
   query,
   orderBy,
+  serverTimestamp,
   type Unsubscribe,
 } from 'firebase/firestore'
 import { db } from './firebase'
@@ -87,7 +88,7 @@ export async function addComment(
     author: payload.author,
     authorId: payload.authorId ?? null,
     text: payload.text,
-    createdAt: new Date(),
+    createdAt: serverTimestamp(),
   })
   const snap = await getDoc(docRef)
   const data = snap.data() ?? {}

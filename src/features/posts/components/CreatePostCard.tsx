@@ -52,7 +52,8 @@ export function CreatePostCard(_props: CreatePostCardProps) {
         username: user.displayName,
         title: trimmedTitle,
         content: trimmedContent,
-        authorId: user.uid === 'local' ? undefined : user.uid,
+        authorId:
+          import.meta.env.VITE_DATA_SOURCE === 'firebase' ? user.uid : undefined,
         imageUrl: trimmedImageUrl || undefined,
       })
     )

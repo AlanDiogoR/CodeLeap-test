@@ -133,24 +133,21 @@ export class FirebasePostRepository implements IPostRepository {
     if (!db) throw new Error('Firestore not configured')
 
     const docRef = doc(db, POSTS_COLLECTION, String(id))
-    await updateDoc(docRef, {
+    const updatePayload: Record<string, unknown> = {
       title: payload.title,
       content: payload.content,
-      ...(payload.imageUrl === ''
-        ? { imageUrl: deleteField() }
-        : payload.imageUrl != null && { imageUrl: payload.imageUrl }),
       updatedAt: serverTimestamp(),
-    })
-    const allQuery = await getDocs(
-      query(
-        collection(db, POSTS_COLLECTION),
-        orderBy('createdAt', 'desc'),
-        limit(100)
-      )
-    )
-    const d = allQuery.docs.find((x) => x.id === String(id))
-    if (!d) throw new Error('Post not found after update')
-    return firestorePostToPost(d.id, d.data())
+    }
+    if (payload.imageUrl === '') {
+      updatePayload.imageUrl = deleteField()
+    } else if (payload.imageUrl != null) {
+      updatePayload.imageUrl = payload.imageUrl
+    }
+    await updateDoc(docRef, updatePayload)
+
+    const snap = await getDoc(docRef)
+    if (!snap.exists()) throw new Error('Post not found after update')
+    return firestorePostToPost(snap.id, snap.data() ?? {})
   }
 
   async delete(id: number | string): Promise<void> {

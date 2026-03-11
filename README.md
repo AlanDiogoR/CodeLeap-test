@@ -4,6 +4,35 @@
   <img src="./public/img.PNG" alt="CodeLeap Network Screenshot" width="800" />
 </p>
 
+## Checklist – Critérios & Bônus
+
+### Critérios Obrigatórios
+
+| # | Critério | Status |
+|---|----------|--------|
+| 1 | Autenticação (login com username ou Google) | ✅ |
+| 2 | Criar post (título + conteúdo) | ✅ |
+| 3 | Editar post (apenas dono) | ✅ |
+| 4 | Excluir post (apenas dono) | ✅ |
+| 5 | Listar posts | ✅ |
+| 6 | Curtir post (likes) | ✅ |
+| 7 | Comentários em posts | ✅ |
+| 8 | Layout responsivo | ✅ |
+
+### Bonus Points Implementados
+
+| # | Bônus | Status |
+|---|-------|--------|
+| 1 | Firebase Authentication (Google Sign-in) | ✅ |
+| 2 | Infinite Scroll (paginação com cursor) | ✅ |
+| 3 | Framer Motion (animações) | ✅ |
+| 4 | @mentions em posts e comentários | ✅ |
+| 5 | Real-time CRUD (Firestore onSnapshot) | ✅ |
+| 6 | Error Boundaries | ✅ |
+| 7 | Suporte a imagem por URL | ✅ |
+| 8 | Repository Pattern (REST + Firestore) | ✅ |
+| 9 | Validação Zod | ✅ |
+
 <p align="center">
   <a href="https://vitejs.dev/"><img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" /></a>
   <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" /></a>
@@ -37,6 +66,21 @@
 
 ---
 
+## Technical Differentiators
+
+| Category | Implementation |
+|----------|----------------|
+| **Dual Data Source** | Repository Pattern with `VITE_DATA_SOURCE` switching between REST API and Firestore—no refactoring when migrating backends |
+| **Server Authority** | `serverTimestamp()` for all writes; Firestore rules validate schema, types, and immutability of `authorId` |
+| **Auth Resilience** | Google Sign-in + Anonymous fallback when config fails; `onAuthStateChanged` keeps session in sync |
+| **Performance** | Point-in-time `getDoc` after updates (no top-N query); skeleton loaders with PostItem proportions to avoid CLS |
+| **Security Headers** | CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy via `vercel.json` |
+| **Testability** | Repository mocks for unit tests; split hooks (`usePostLocal`, `usePostFirebase`) for isolated testing |
+| **Type Safety** | Zod validation for API and Firestore payloads; `authorId`/`imageUrl` nullable to handle real-world data |
+| **UX Polish** | Framer Motion, optimistic UI with rollback, loading/empty/error states in English, 4px/8px spacing grid |
+
+---
+
 ## Architecture Decisions
 
 ### Repository Pattern
@@ -51,9 +95,24 @@ Global state (auth, posts, pagination, sort order) is managed with Redux Toolkit
 
 Styling uses Tailwind v4 with design tokens in `@theme` (colors, typography, radii). Tokens align with the [CodeLeap Figma](https://www.figma.com/design/6AizP09Fh9oEAWTLKsr1vQ/) spec—primary `#7695ec`, 16px border radius, Roboto font weights. No arbitrary values in components.
 
+### Revisão Visual (Figma)
+
+| Elemento | Figma | Implementado |
+|----------|-------|--------------|
+| Cor primária | #7695ec | `--color-primary` ✅ |
+| Border radius cards | 16px | `rounded-2xl` (1rem) ✅ |
+| Fonte | Roboto | `--font-sans` ✅ |
+| Background página | #dddddd | `--color-background` ✅ |
+| Cards | #ffffff | `--color-background-card` ✅ |
+| Espaçamentos | 4px/8px | Tailwind gap/padding ✅ |
+
 ---
 
 ## Security First
+
+### Firebase Anonymous Auth (optional)
+
+When Google Sign-in is not configured and `VITE_DATA_SOURCE=firebase`, the app offers a username fallback that uses Firebase Anonymous Authentication. Enable **Anonymous** in Firebase Console → Authentication → Sign-in method so users can create posts without Google.
 
 ### Firestore Security Rules
 
@@ -133,6 +192,12 @@ npm run preview
 
 ```bash
 npm run test
+```
+
+Smoke tests (auth, CRUD, likes, comments, infinite scroll):
+
+```bash
+npx vitest run src/smoke
 ```
 
 ### Lint & Format
