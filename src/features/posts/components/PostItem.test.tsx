@@ -13,7 +13,7 @@ const mockPost = {
 
 describe('PostItem', () => {
   it('renders post title and content', () => {
-    render(<PostItem post={mockPost} currentUsername="other" />)
+    render(<PostItem post={mockPost} currentUser={{ uid: 'local', displayName:"other" }} />)
     expect(
       screen.getByRole('heading', { name: 'Test Post' })
     ).toBeInTheDocument()
@@ -26,7 +26,7 @@ describe('PostItem', () => {
     render(
       <PostItem
         post={mockPost}
-        currentUsername="john"
+        currentUser={{ uid: 'local', displayName:"john" }}
         onEdit={vi.fn()}
         onDelete={vi.fn()}
       />
@@ -36,7 +36,7 @@ describe('PostItem', () => {
   })
 
   it('hides edit and delete when currentUsername differs', () => {
-    render(<PostItem post={mockPost} currentUsername="other" />)
+    render(<PostItem post={mockPost} currentUser={{ uid: 'local', displayName:"other" }} />)
     expect(screen.queryByLabelText(/delete post/i)).not.toBeInTheDocument()
     expect(screen.queryByLabelText(/edit post/i)).not.toBeInTheDocument()
   })
@@ -45,14 +45,14 @@ describe('PostItem', () => {
     const onDelete = vi.fn()
     const user = userEvent.setup()
     render(
-      <PostItem post={mockPost} currentUsername="john" onDelete={onDelete} />
+      <PostItem post={mockPost} currentUser={{ uid: 'local', displayName:"john" }} onDelete={onDelete} />
     )
     await user.click(screen.getByLabelText(/delete post/i))
     expect(onDelete).toHaveBeenCalledWith(mockPost)
   })
 
   it('shows comment button with count', () => {
-    render(<PostItem post={mockPost} currentUsername="other" />)
+    render(<PostItem post={mockPost} currentUser={{ uid: 'local', displayName:"other" }} />)
     const commentBtn = screen.getByLabelText(/show comments/i)
     expect(commentBtn).toBeInTheDocument()
     expect(commentBtn).toHaveTextContent('0')

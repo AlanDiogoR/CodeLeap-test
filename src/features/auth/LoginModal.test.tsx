@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
@@ -6,6 +6,8 @@ import { Provider } from 'react-redux'
 import { store } from '../../store'
 import { logout } from './authSlice'
 import { LoginModal } from './LoginModal'
+
+vi.mock('../../services/firebase', () => ({ auth: null }))
 
 function renderWithStore() {
   return render(
@@ -47,7 +49,7 @@ describe('LoginModal', () => {
     expect(screen.getByRole('button', { name: /enter/i })).toBeEnabled()
   })
 
-  it('dispatches setUsername on ENTER when input has content', async () => {
+  it('dispatches setLocalUser on ENTER when input has content', async () => {
     const user = userEvent.setup()
     renderWithStore()
     await user.type(
@@ -55,6 +57,6 @@ describe('LoginModal', () => {
       'john'
     )
     await user.click(screen.getByRole('button', { name: /enter/i }))
-    expect(store.getState().auth.username).toBe('john')
+    expect(store.getState().auth.user?.displayName).toBe('john')
   })
 })

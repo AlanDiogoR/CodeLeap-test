@@ -1,21 +1,43 @@
 import { createSlice } from '@reduxjs/toolkit'
+import { auth } from '../../services/firebase'
 
-const USERNAME_KEY = 'codeleap_username'
+export interface AuthUser {
+  uid: string
+  displayName: string
+  photoURL: string | null
+  email: string | null
+}
 
-function loadUsername(): string | null {
+const LOCAL_USER_KEY = 'codeleap_local_user'
+
+function loadLocalUser(): AuthUser | null {
+  if (auth) return null
   try {
-    return localStorage.getItem(USERNAME_KEY)
+    const raw = localStorage.getItem(LOCAL_USER_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as unknown
+    if (
+      parsed &&
+      typeof parsed === 'object' &&
+      'uid' in parsed &&
+      typeof (parsed as AuthUser).uid === 'string' &&
+      'displayName' in parsed &&
+      typeof (parsed as AuthUser).displayName === 'string'
+    ) {
+      return parsed as AuthUser
+    }
+    return null
   } catch {
     return null
   }
 }
 
-function saveUsername(username: string | null): void {
+function saveLocalUser(user: AuthUser | null): void {
   try {
-    if (username) {
-      localStorage.setItem(USERNAME_KEY, username)
+    if (user) {
+      localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(user))
     } else {
-      localStorage.removeItem(USERNAME_KEY)
+      localStorage.removeItem(LOCAL_USER_KEY)
     }
   } catch {
     // ignore
@@ -23,27 +45,45 @@ function saveUsername(username: string | null): void {
 }
 
 interface AuthState {
-  username: string | null
+  user: AuthUser | null
+  initialized: boolean
 }
 
 const initialState: AuthState = {
-  username: loadUsername(),
+  user: auth ? null : loadLocalUser(),
+  initialized: !auth,
 }
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setUsername: (state, { payload }: { payload: string | null }) => {
-      state.username = payload
-      saveUsername(payload)
+    setUser: (state, { payload }: { payload: AuthUser | null }) => {
+      state.user = payload
+      if (!auth && payload) saveLocalUser(payload)
+      else if (!auth) saveLocalUser(null)
+    },
+    setLocalUser: (state, { payload }: { payload: { displayName: string } }) => {
+      if (auth) return
+      const user: AuthUser = {
+        uid: 'local',
+        displayName: payload.displayName,
+        photoURL: null,
+        email: null,
+      }
+      state.user = user
+      saveLocalUser(user)
     },
     logout: (state) => {
-      state.username = null
-      saveUsername(null)
+      state.user = null
+      if (!auth) saveLocalUser(null)
+    },
+    setAuthInitialized: (state, { payload }: { payload: boolean }) => {
+      state.initialized = payload
     },
   },
 })
 
-export const { setUsername, logout } = authSlice.actions
+export const { setUser, setLocalUser, logout, setAuthInitialized } =
+  authSlice.actions
 export const authReducer = authSlice.reducer

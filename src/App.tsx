@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useAppSelector } from './store/hooks'
 import { Header } from './components/layout'
+import { AuthInitializer } from './features/auth/AuthInitializer'
 
 const LoginModal = lazy(() =>
   import('./features/auth').then((m) => ({ default: m.LoginModal }))
@@ -12,16 +13,20 @@ const MainFeed = lazy(() =>
 )
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const username = useAppSelector((state) => state.auth.username)
-  if (username === null) {
+  const user = useAppSelector((state) => state.auth.user)
+  const initialized = useAppSelector((state) => state.auth.initialized)
+  if (!initialized) return null
+  if (user === null) {
     return <Navigate to="/login" replace />
   }
   return <>{children}</>
 }
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
-  const username = useAppSelector((state) => state.auth.username)
-  if (username !== null) {
+  const user = useAppSelector((state) => state.auth.user)
+  const initialized = useAppSelector((state) => state.auth.initialized)
+  if (!initialized) return null
+  if (user !== null) {
     return <Navigate to="/" replace />
   }
   return <>{children}</>
@@ -29,18 +34,47 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 
 function PageLoader() {
   return (
-    <div className="flex min-h-[40vh] items-center justify-center">
-      <span
-        className="size-10 animate-spin rounded-full border-2 border-primary border-t-transparent"
-        aria-label="Loading"
-      />
+    <div className="min-h-screen bg-background">
+      <div className="h-16 animate-pulse bg-primary/20 sm:h-20" />
+      <main className="mx-auto max-w-3xl px-4 py-6 sm:p-6">
+        <div className="space-y-6">
+          <div className="animate-pulse rounded-2xl border border-border-dark bg-background-card p-6">
+            <div className="mb-4 h-8 w-2/3 rounded bg-muted/30" />
+            <div className="mb-2 h-5 w-full rounded bg-muted/30" />
+            <div className="mb-2 h-5 w-full rounded bg-muted/30" />
+            <div className="h-24 w-3/4 rounded bg-muted/30" />
+          </div>
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="animate-pulse overflow-hidden rounded-2xl border border-border-dark bg-background-card"
+            >
+              <div className="flex min-h-[70px] items-center px-6 py-5">
+                <div className="h-8 w-1/2 rounded bg-primary/20" />
+              </div>
+              <div className="min-h-[120px] space-y-2 px-6 py-4">
+                <div className="flex justify-between">
+                  <div className="h-5 w-24 rounded bg-muted/30" />
+                  <div className="h-5 w-28 rounded bg-muted/30" />
+                </div>
+                <div className="space-y-2">
+                  <div className="h-5 w-full rounded bg-muted/30" />
+                  <div className="h-5 w-3/4 rounded bg-muted/30" />
+                  <div className="h-5 w-2/3 rounded bg-muted/30" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </main>
     </div>
   )
 }
 
 function App() {
   return (
-    <BrowserRouter>
+    <AuthInitializer>
+      <BrowserRouter>
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route
@@ -71,6 +105,7 @@ function App() {
         </Routes>
       </Suspense>
     </BrowserRouter>
+    </AuthInitializer>
   )
 }
 

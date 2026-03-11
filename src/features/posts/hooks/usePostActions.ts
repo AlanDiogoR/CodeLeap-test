@@ -10,7 +10,7 @@ export interface FakeComment {
 
 const STORAGE_KEY = 'codeleap_post_data'
 
-function loadFromStorage(postId: number): {
+function loadFromStorage(postId: number | string): {
   likes: number
   liked: boolean
   comments: FakeComment[]
@@ -33,7 +33,7 @@ function loadFromStorage(postId: number): {
 }
 
 function saveToStorage(
-  postId: number,
+  postId: number | string,
   data: { likes: number; liked: boolean; comments: FakeComment[] }
 ): void {
   if (typeof window === 'undefined') return

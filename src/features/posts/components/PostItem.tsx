@@ -3,34 +3,44 @@ import { motion } from 'framer-motion'
 import { formatDistanceToNow } from 'date-fns'
 import { enUS } from 'date-fns/locale'
 import { FormattedText } from '../../../components/FormattedText'
+import { ImageWithSkeleton } from '../../../components/ImageWithSkeleton'
 import { DeleteIcon, EditIcon, HeartIcon } from '../../../components/icons'
 import { CommentSection } from './CommentSection'
-import { usePostActions } from '../hooks/usePostActions'
+import { usePostInteractions } from '../hooks/usePostInteractions'
 import { sanitizeHtml } from '../../../utils/sanitize'
 import type { Post } from '../../../types/post'
 
+interface CurrentUser {
+  uid: string
+  displayName: string
+}
+
 interface PostItemProps {
   post: Post
-  currentUsername: string
+  currentUser: CurrentUser
   onEdit?: (post: Post) => void
   onDelete?: (post: Post) => void
 }
 
 export function PostItem({
   post,
-  currentUsername,
+  currentUser,
   onEdit,
   onDelete,
 }: PostItemProps) {
-  const isOwner = post.username === currentUsername
+  const isOwner =
+    post.authorId != null
+      ? post.authorId === currentUser.uid
+      : post.username === currentUser.displayName
   const [showComments, setShowComments] = useState(false)
   const {
     isLiked,
     likeCount,
     comments,
     setComments,
+    addComment,
     handleLike,
-  } = usePostActions(post)
+  } = usePostInteractions(post, currentUser.uid)
 
   const relativeTime = formatDistanceToNow(new Date(post.created_datetime), {
     addSuffix: true,
@@ -83,6 +93,15 @@ export function PostItem({
           <span>@{post.username}</span>
           <span>{relativeTime}</span>
         </div>
+        {post.imageUrl && (
+          <div className="overflow-hidden rounded-xl">
+            <ImageWithSkeleton
+              src={post.imageUrl}
+              alt=""
+              className="max-h-80 w-full object-cover"
+            />
+          </div>
+        )}
         <div className="whitespace-pre-wrap text-base text-foreground sm:text-lg">
           <FormattedText text={post.content} />
         </div>
@@ -112,7 +131,8 @@ export function PostItem({
           <CommentSection
             comments={comments}
             setComments={setComments}
-            currentUsername={currentUsername}
+            addComment={addComment}
+            currentUsername={currentUser.displayName}
             expanded={showComments}
             onToggle={() => setShowComments((p) => !p)}
             commentCount={comments.length}

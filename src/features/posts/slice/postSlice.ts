@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { postService } from '../../../services/postService'
+import { getPostRepository } from '../../../repositories'
 import type {
   Post,
   CreatePostPayload,
@@ -51,8 +51,8 @@ export const fetchPosts = createAsyncThunk<
   { rejectValue: ApiError }
 >('posts/fetchPosts', async (_, { rejectWithValue }) => {
   try {
-    const res = await postService.getAll()
-    return { results: res.results, next: res.next }
+    const repo = getPostRepository()
+    return await repo.getAll()
   } catch (error) {
     return rejectWithValue(error as ApiError)
   }
@@ -62,10 +62,10 @@ export const fetchNextPage = createAsyncThunk<
   { results: Post[]; next: string | null },
   string,
   { rejectValue: ApiError }
->('posts/fetchNextPage', async (url, { rejectWithValue }) => {
+>('posts/fetchNextPage', async (cursor, { rejectWithValue }) => {
   try {
-    const res = await postService.getPage(url)
-    return { results: res.results, next: res.next }
+    const repo = getPostRepository()
+    return await repo.getNextPage(cursor)
   } catch (error) {
     return rejectWithValue(error as ApiError)
   }
@@ -77,7 +77,8 @@ export const createPost = createAsyncThunk<
   { rejectValue: ApiError }
 >('posts/createPost', async (payload, { rejectWithValue }) => {
   try {
-    return await postService.create(payload)
+    const repo = getPostRepository()
+    return await repo.create(payload)
   } catch (error) {
     return rejectWithValue(error as ApiError)
   }
@@ -85,23 +86,25 @@ export const createPost = createAsyncThunk<
 
 export const updatePost = createAsyncThunk<
   Post,
-  { id: number; payload: UpdatePostPayload },
+  { id: number | string; payload: UpdatePostPayload },
   { rejectValue: ApiError }
 >('posts/updatePost', async ({ id, payload }, { rejectWithValue }) => {
   try {
-    return await postService.update(id, payload)
+    const repo = getPostRepository()
+    return await repo.update(id, payload)
   } catch (error) {
     return rejectWithValue(error as ApiError)
   }
 })
 
 export const deletePost = createAsyncThunk<
-  number,
+  number | string,
   Post,
   { rejectValue: ApiError }
 >('posts/deletePost', async (post, { rejectWithValue }) => {
   try {
-    await postService.delete(post.id)
+    const repo = getPostRepository()
+    await repo.delete(post.id)
     return post.id
   } catch (error) {
     return rejectWithValue(error as ApiError)
@@ -196,7 +199,9 @@ const postSlice = createSlice({
       })
       .addCase(fetchNextPage.rejected, (state, { payload }) => {
         state.pagination.hasMore = Boolean(state.pagination.next)
-        state.error = payload?.message ?? 'Failed to load more posts'
+        state.error =
+          (payload as ApiError | undefined)?.message ??
+          'Failed to load more posts'
       })
   },
 })

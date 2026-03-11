@@ -1,7 +1,5 @@
 # CodeLeap Network
 
-[![CodeLeap Network](./public/favicon.svg)](https://code-leap-test-tau.vercel.app)
-
 <p align="center">
   <img src="./public/img.PNG" alt="CodeLeap Network Screenshot" width="800" />
 </p>

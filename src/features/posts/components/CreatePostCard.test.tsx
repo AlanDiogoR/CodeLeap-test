@@ -1,10 +1,15 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Provider } from 'react-redux'
 import { store } from '../../../store'
-import { setUsername } from '../../auth/authSlice'
+import { setLocalUser } from '../../auth/authSlice'
 import { CreatePostCard } from './CreatePostCard'
+
+vi.mock('../../../services/firebase', () => ({
+  auth: null,
+  storage: null,
+}))
 
 function renderWithStore() {
   return render(
@@ -16,7 +21,7 @@ function renderWithStore() {
 
 describe('CreatePostCard', () => {
   beforeEach(() => {
-    store.dispatch(setUsername('john'))
+    store.dispatch(setLocalUser({ displayName: 'john' }))
   })
 
   it('renders title and form fields', () => {

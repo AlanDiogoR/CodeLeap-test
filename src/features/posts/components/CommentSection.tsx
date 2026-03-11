@@ -8,6 +8,7 @@ import type { FakeComment } from '../hooks/usePostActions'
 interface CommentSectionProps {
   comments: FakeComment[]
   setComments: (fn: (prev: FakeComment[]) => FakeComment[]) => void
+  addComment?: (text: string) => Promise<void>
   currentUsername: string
   expanded: boolean
   onToggle: () => void
@@ -17,27 +18,39 @@ interface CommentSectionProps {
 export function CommentSection({
   comments,
   setComments,
+  addComment,
   currentUsername,
   expanded,
   onToggle,
   commentCount,
 }: CommentSectionProps) {
   const [commentInput, setCommentInput] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  function handleAddComment(e: FormEvent) {
+  async function handleAddComment(e: FormEvent) {
     e.preventDefault()
     const trimmed = commentInput.trim()
     if (!trimmed) return
-    setComments((prev) => [
-      ...prev,
-      {
-        id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
-        author: currentUsername,
-        text: trimmed,
-        timestamp: Date.now(),
-      },
-    ])
-    setCommentInput('')
+    if (addComment) {
+      setIsSubmitting(true)
+      try {
+        await addComment(trimmed)
+        setCommentInput('')
+      } finally {
+        setIsSubmitting(false)
+      }
+    } else {
+      setComments((prev) => [
+        ...prev,
+        {
+          id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+          author: currentUsername,
+          text: trimmed,
+          timestamp: Date.now(),
+        },
+      ])
+      setCommentInput('')
+    }
   }
 
   return (
@@ -105,10 +118,10 @@ export function CommentSection({
                 />
                 <button
                   type="submit"
-                  disabled={!commentInput.trim()}
+                  disabled={!commentInput.trim() || isSubmitting}
                   className="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-inverse transition-transform hover:scale-105 disabled:opacity-50"
                 >
-                  Post
+                  {isSubmitting ? 'Posting...' : 'Post'}
                 </button>
               </form>
             </div>

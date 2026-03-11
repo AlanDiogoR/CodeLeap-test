@@ -140,7 +140,10 @@ describe('postSlice', () => {
         optimisticDeleteIndex: -1,
         sortOrder: 'newest',
       },
-      auth: { username: 'user' },
+      auth: {
+        user: { uid: 'local', displayName: 'user', photoURL: null, email: null },
+        initialized: true,
+      },
     }
     const result = selectSortedPosts(state)
     expect(result[0].id).toBe(2)
@@ -173,7 +176,10 @@ describe('postSlice', () => {
         optimisticDeleteIndex: -1,
         sortOrder: 'oldest',
       },
-      auth: { username: 'user' },
+      auth: {
+        user: { uid: 'local', displayName: 'user', photoURL: null, email: null },
+        initialized: true,
+      },
     }
     const result = selectSortedPosts(state)
     expect(result[0].id).toBe(1)

@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { authReducer, setUsername, logout } from './authSlice'
+import { authReducer, setLocalUser, logout } from './authSlice'
+
+vi.mock('../../services/firebase', () => ({ auth: null }))
 
 const mockLocalStorage = (() => {
   let store: Record<string, string> = {}
@@ -24,26 +26,35 @@ describe('authSlice', () => {
     mockLocalStorage.clear()
   })
 
-  it('sets initial state with null username when localStorage is empty', () => {
+  it('sets initial state with null user when localStorage is empty', () => {
     const state = authReducer(undefined, { type: 'unknown' })
-    expect(state.username).toBeNull()
+    expect(state.user).toBeNull()
+    expect(state.initialized).toBe(true)
   })
 
-  it('setUsername updates state and persists to localStorage', () => {
-    const state = authReducer(undefined, setUsername('john'))
-    expect(state.username).toBe('john')
+  it('setLocalUser updates state and persists to localStorage', () => {
+    const state = authReducer(undefined, setLocalUser({ displayName: 'john' }))
+    expect(state.user).toEqual({
+      uid: 'local',
+      displayName: 'john',
+      photoURL: null,
+      email: null,
+    })
     expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-      'codeleap_username',
-      'john'
+      'codeleap_local_user',
+      expect.any(String)
     )
   })
 
-  it('logout clears username', () => {
-    const stateWithUser = authReducer(undefined, setUsername('john'))
+  it('logout clears user', () => {
+    const stateWithUser = authReducer(
+      undefined,
+      setLocalUser({ displayName: 'john' })
+    )
     const state = authReducer(stateWithUser, logout())
-    expect(state.username).toBeNull()
+    expect(state.user).toBeNull()
     expect(mockLocalStorage.removeItem).toHaveBeenCalledWith(
-      'codeleap_username'
+      'codeleap_local_user'
     )
   })
 })

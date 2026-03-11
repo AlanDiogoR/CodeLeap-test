@@ -1,16 +1,18 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { Provider } from 'react-redux'
 import { store } from './store'
-import { logout, setUsername } from './features/auth'
+import { logout, setLocalUser } from './features/auth'
 import App from './App'
+
+vi.mock('./services/firebase', () => ({ auth: null }))
 
 beforeEach(() => {
   store.dispatch(logout())
 })
 
 describe('App', () => {
-  it('shows LoginModal when username is null', () => {
+  it('shows LoginModal when user is null', () => {
     render(
       <Provider store={store}>
         <App />
@@ -24,8 +26,8 @@ describe('App', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('shows Header and feed when username exists', () => {
-    store.dispatch(setUsername('john'))
+  it('shows Header and feed when user exists', () => {
+    store.dispatch(setLocalUser({ displayName: 'john' }))
     render(
       <Provider store={store}>
         <App />

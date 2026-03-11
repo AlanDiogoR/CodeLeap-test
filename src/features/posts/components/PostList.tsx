@@ -46,7 +46,7 @@ export function PostList({ searchQuery = '' }: PostListProps) {
         p.content.toLowerCase().includes(q)
     )
   }, [sortedItems, searchQuery])
-  const username = useAppSelector((state) => state.auth.username)
+  const user = useAppSelector((state) => state.auth.user)
   const [deleteTarget, setDeleteTarget] = useState<Post | null>(null)
   const [editTarget, setEditTarget] = useState<Post | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -85,11 +85,18 @@ export function PostList({ searchQuery = '' }: PostListProps) {
     setEditTarget(post)
   }
 
-  async function handleSaveEdit(title: string, content: string) {
+  async function handleSaveEdit(
+    title: string,
+    content: string,
+    imageUrl?: string
+  ) {
     if (!editTarget) return
     setIsUpdating(true)
     const result = await dispatch(
-      updatePost({ id: editTarget.id, payload: { title, content } })
+      updatePost({
+        id: editTarget.id,
+        payload: { title, content, ...(imageUrl !== undefined && { imageUrl }) },
+      })
     )
     setIsUpdating(false)
     setEditTarget(null)
@@ -148,7 +155,7 @@ export function PostList({ searchQuery = '' }: PostListProps) {
     )
   }
 
-  if (!username) return null
+  if (!user) return null
 
   return (
     <>
@@ -184,7 +191,7 @@ export function PostList({ searchQuery = '' }: PostListProps) {
                   >
                     <PostItem
                       post={post}
-                      currentUsername={username}
+                      currentUser={user}
                       onEdit={handleEdit}
                       onDelete={handleDelete}
                     />
